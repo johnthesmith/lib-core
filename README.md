@@ -1,2 +1,3 @@
-# lib-core
-Main libraries for projects.
+# Libraryes
+
+Contain the core libraryes
