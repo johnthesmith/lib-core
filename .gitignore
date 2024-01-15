@@ -1,1 +1,10 @@
+# Ignore file
+
+# Exclude execute file
+
+*.ods#
 *.save
+*.log
+*.bin
+*.swp
+*~
