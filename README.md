@@ -2,8 +2,8 @@
 
 1. These are the basic vanilla core libraryes for applications.
 0. Project separated on two parts:
-    1. Core
-    0. Application
+    1. [Core](#Core)
+    0. [Application](#Application)
 
 
 
