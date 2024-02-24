@@ -2,7 +2,6 @@
 
 #include <cstddef>      /* for NULL */
 #include <functional>   /* for lyambda */
-#include "result.h"     /* for extends */
 
 
 
@@ -10,7 +9,7 @@ using namespace std;
 
 
 
-class Heap : public Result
+class Heap
 {
     private:
 
@@ -35,7 +34,7 @@ class Heap : public Result
         /*
             Destructor
         */
-        ~Heap();
+        virtual ~Heap();
 
 
 
@@ -163,7 +162,7 @@ class Heap : public Result
         Heap* remove
         (
             function <bool ( void* )>,
-            Heap* = NULL                  /* Removind. Warning!!! Must be empty */
+            Heap* = NULL                  /* Removing. Warning!!! Must be empty */
         );
 
 

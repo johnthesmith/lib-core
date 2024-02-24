@@ -419,6 +419,33 @@ Log* Log::prm
 Log* Log::prm
 (
     string aTitle,  /* Title for parameter */
+    void* aValue    /* Value */
+)
+{
+    stringstream ss;
+    ss << aValue;
+
+    pushColor();
+    setColor( colorLabel );
+    text( "[" );
+    text( "adr " );
+    setColor( colorInfo );
+    text( aTitle );
+    space();
+    setColor( colorValue );
+    value ( ss.str() );
+    setColor( colorLabel );
+    text( "]" );
+    popColor();
+
+    return this;
+}
+
+
+
+Log* Log::prm
+(
+    string aTitle,  /* Title for parameter */
     double aValue      /* Value */
 )
 {
@@ -481,6 +508,11 @@ Log* Log::lineBegin
 
     switch( type )
     {
+        case lrDump:
+        case lrNone:
+            colorLine = INK_DEFAULT;
+            charLine = "";
+        break;
         case lrBegin:
             colorLine = colorJob;
             charLine = ">";
@@ -544,21 +576,31 @@ Log* Log::lineEnd()
 
         /* Draw enter */
         eol();
-
-        if( fileName == "" )
-        {
-            /* Write to console */
-            cout << buffer;
-        }
-        else
-        {
-            /* Write to file */
-            if( !isOpen() ) open();
-            fwrite( buffer.c_str(), buffer.length(), 1, fileHandle );
-            close();
-        }
-        buffer = "";
+        flush();
     }
+    return this;
+}
+
+
+
+/*
+    Flush buffer to out
+*/
+Log* Log::flush()
+{
+    if( fileName == "" )
+    {
+        /* Write to console */
+        cout << buffer;
+    }
+    else
+    {
+        /* Write to file */
+        if( !isOpen() ) open();
+        fwrite( buffer.c_str(), buffer.length(), 1, fileHandle );
+        close();
+    }
+    buffer = "";
     return this;
 }
 

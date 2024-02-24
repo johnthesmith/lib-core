@@ -1,9 +1,8 @@
 #pragma once
 
+
+
 #include <string>
-
-
-
 using namespace std;
 
 
@@ -11,15 +10,44 @@ using namespace std;
 const string RESULT_OK = "ok";
 
 
+/*
+    Predeclaration
+*/
+class ParamList;
+
+
 
 class Result
 {
     private:
+
         /* Состояния текстового процессора */
         string      message     = "";
         string      code        = RESULT_OK;
+        ParamList*  details     = NULL;
 
     public:
+
+        /*
+            Constructor
+        */
+        Result();
+
+
+
+        /*
+            Destructor
+        */
+        virtual ~Result();
+
+
+
+        static Result* create
+        (
+            string = RESULT_OK,
+            string = ""
+        );
+
 
 
         /*
@@ -99,4 +127,11 @@ class Result
         (
             Result*
         );
+
+
+
+        /*
+            Details return
+        */
+        ParamList* getDetails();
 };

@@ -4,6 +4,7 @@
 #include "utils.h"
 
 
+
 /*
     Constructor
 */
@@ -23,7 +24,7 @@ Application::Application
     for( int i = 1; i < aCount; i++ )
     {
         string arg = aList[ i ];
-        auto lexemes = explode( arg, "=", true, 1 );
+        auto lexemes = explode( arg, (string) "=", true, 1 );
         string key = "";
         string value = "";
 

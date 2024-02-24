@@ -2,9 +2,43 @@
 #include <string>
 
 #include "result.h"
-
+#include "../json/param_list.h"
 
 using namespace std; // для того что бы std:: не приходилось каждый раз писать
+
+
+
+/*
+    Constructor
+*/
+Result::Result()
+{
+    details = ParamList::create();
+}
+
+
+
+/*
+    Destructor
+*/
+Result::~Result()
+{
+    details -> destroy();
+}
+
+
+
+
+Result*  Result::create
+(
+    string aCode,
+    string aMessage
+)
+{
+    auto result = new Result();
+    return result -> setCode( aCode ) -> setMessage( aMessage );
+}
+
 
 
 
@@ -93,6 +127,7 @@ Result* Result::resultFrom
 {
     setCode( a -> code );
     setMessage( a -> message );
+    getDetails() -> copyFrom( a -> getDetails() );
     return this;
 }
 
@@ -106,7 +141,16 @@ Result* Result::resultTo
     Result* a
 )
 {
-    a -> setCode( code );
-    a -> setMessage( message );
+    a -> resultFrom( this );
     return this;
+}
+
+
+
+/*
+    Details return
+*/
+ParamList* Result::getDetails()
+{
+    return details;
 }

@@ -1,6 +1,7 @@
 #include "hid.h"
-#include "utils.h"
 
+#include "utils.h"
+// #include "md5.h"    /* For setString TODO */
 
 
 /*
@@ -11,7 +12,7 @@ Hid& Hid::setString
     string a
 )
 {
-    MD5( a ).toBuffer( data );
+//    MD5( a ).toBuffer( data );
     return *this;
 }
 

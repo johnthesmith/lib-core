@@ -72,7 +72,7 @@ class Payload : public Result
 
 
 
-        ~Payload();
+        virtual ~Payload();
 
 
         /*

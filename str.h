@@ -57,6 +57,7 @@ string strAlign
         int e = aLength;
         switch (aAlign)
         {
+            default:
             case ALIGN_LEFT     : b = 0; break;
             case ALIGN_RIGHT    : b = delta; break;
             case ALIGN_CENTER   : b = delta / 2; break;
@@ -68,6 +69,7 @@ string strAlign
         string s = aValue;
         switch ( aAlign )
         {
+            default:
             case ALIGN_LEFT:
                 aValue.resize( aLength, ' ');
             break;

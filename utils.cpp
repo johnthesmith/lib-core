@@ -68,7 +68,7 @@ const vector<string> explode
     const string& aSource,
     const string& aDelimeter,
     const bool aReturnEmpty,
-    const int aCount
+    const long unsigned int aCount
 )
 {
 	string buff{ "" };
@@ -299,7 +299,6 @@ vector <string> getFileList
 
         while (( f_cur = readdir( dir )) != NULL)
         {
-            int i=0;
             result.push_back( f_cur -> d_name );
         }
 

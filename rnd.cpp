@@ -113,7 +113,7 @@ double Rnd::get
     double aMax
 )
 {
-    return aMin + floor( get() * ( aMax + 1  - aMin ));
+    return aMin + get() * ( aMax - aMin );
 }
 
 

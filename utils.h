@@ -16,12 +16,12 @@ enum ParamType
     KT_UNKNOWN, /* 0 */
     KT_BOOL,    /* 1 */
     KT_STRING,  /* 2 */
-    KT_DATA,
-    KT_INT,
-    KT_DOUBLE,
-    KT_OBJECT,
-    KT_ARRAY,
-    KT_NULL
+    KT_DATA,    /* 3 */
+    KT_INT,     /* 4 */
+    KT_DOUBLE,  /* 5 */
+    KT_OBJECT,  /* 6 */
+    KT_ARRAY,   /* 7 */
+    KT_NULL     /* 8 */
 };
 
 
@@ -59,7 +59,7 @@ const vector<string> explode
     const string&,
     const string&,
     const bool = true,
-    const int = 0
+    const long unsigned int = 0
 );
 
 
