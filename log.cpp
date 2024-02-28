@@ -968,3 +968,91 @@ Log* Log::clone
     setFileName( aSource -> getFileName());
     return this;
 }
+
+
+
+
+/*
+    Dump param list to log
+*/
+Log* Log::dump
+(
+    ParamList* aParamList,
+    string  aSection
+)
+{
+    return dumpInternal( aParamList, aSection, 0 );
+}
+
+
+
+
+Log* Log::dumpInternal
+(
+    ParamList*  aParamList,
+    string      aSection,
+    int         depth
+)
+{
+    int c = aParamList -> getCount();
+    begin( aSection );
+    for( int i = 0; i < c; i++ )
+    {
+        auto p = aParamList -> getByIndex( i );
+
+        switch( p -> getType() )
+        {
+            case KT_OBJECT:
+                if( p -> getObject() != NULL )
+                {
+                    dumpInternal
+                    (
+                        p -> getObject(),
+                        p -> getName( to_string( i ) ),
+                        depth + 1
+                    );
+                }
+            break;
+            case KT_DATA:
+            {
+                auto s  = p -> getSize();
+                trace();
+                pushColor();
+                setColor( colorLabel );
+                text( p -> getNameOfType() );
+                setColor( colorInfo );
+                space();
+                text( p -> getName() );
+                setColor( colorLabel );
+                text( " size " );
+                setColor( colorValue );
+                value( ( long long int ) s );
+                popColor();
+            }
+            break;
+            default:
+                auto s  = p -> getSize();
+                trace();
+                pushColor();
+                setColor( colorLabel );
+                text( p -> getNameOfType() );
+                setColor( colorInfo );
+                space();
+                text( p -> getName() );
+                setColor( colorLabel );
+                text( " = " );
+                setColor( colorValue );
+                value( aParamList -> getString( i ) );
+                setColor( colorLabel );
+                text( " size " );
+                setColor( colorValue );
+                value( ( long long int ) s );
+                popColor();
+            break;
+        }
+    };
+    end();
+
+    return this;
+}
+

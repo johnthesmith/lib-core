@@ -3,7 +3,7 @@
 #include <stack>
 #include "console.h"
 #include "text_align.h"
-
+#include "../json/param_list.h"
 
 
 using namespace std; /* для того что бы std:: не приходилось каждый раз писать */
@@ -58,6 +58,17 @@ class Log
         TextAlign           align           = ALIGN_LEFT;   /* ширина выводимого текста */
         string              trueValue       = "true";       /* строковое значение для приведения true */
         string              falseValue      = "false";      /* строковое значение для приведения false */
+
+
+        /*
+            Recursion for dump
+        */
+        Log* dumpInternal
+        (
+            ParamList*  aParamList,
+            string      aSection,
+            int         depth
+        );
 
     public:
 
@@ -419,5 +430,16 @@ class Log
         Log* clone
         (
             Log*
+        );
+
+
+
+        /*
+            Dump param list to log
+        */
+        Log* dump
+        (
+            ParamList*, /* Param list for dump */
+            string = "" /* Comment for dump section */
         );
 };
