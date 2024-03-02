@@ -576,7 +576,17 @@ Log* Log::lineEnd()
 
         /* Draw enter */
         eol();
-        flush();
+
+        if( trapBuffers.empty() || trapBuffers.top().empty() )
+        {
+            flush( buffer );
+        }
+        else
+        {
+            auto &currentTrap = trapBuffers.top();
+            currentTrap.push_back( buffer );
+        }
+        buffer = "";
     }
     return this;
 }
@@ -586,23 +596,28 @@ Log* Log::lineEnd()
 /*
     Flush buffer to out
 */
-Log* Log::flush()
+Log* Log::flush
+(
+    string aBuffer
+)
 {
     if( fileName == "" )
     {
         /* Write to console */
-        cout << buffer;
+        cout << aBuffer;
     }
     else
     {
         /* Write to file */
         if( !isOpen() ) open();
-        fwrite( buffer.c_str(), buffer.length(), 1, fileHandle );
+        fwrite( aBuffer.c_str(), aBuffer.length(), 1, fileHandle );
         close();
     }
-    buffer = "";
     return this;
 }
+
+
+
 
 
 
@@ -731,11 +746,14 @@ Log* Log::warning()
     return warning( "" );
 }
 
+
+
 Log* Log::warning
 (
     string a    /* Message */
 )
 {
+    trapDump();
     lineBegin( lrWarning );
     write( a );
     return this;
@@ -748,15 +766,19 @@ Log* Log::error()
     return error( "" );
 }
 
+
+
 Log* Log::error
 (
     string a    /* Message */
 )
 {
+    trapDump();
     lineBegin( lrError );
     write( a );
     return this;
 }
+
 
 
 /******************************************************************************
@@ -1055,4 +1077,52 @@ Log* Log::dumpInternal
 
     return this;
 }
+
+
+
+/*
+    Trap on
+*/
+Log* Log::trapOn()
+{
+    if( trapEnabled )
+    {
+        lineEnd();
+        trapBuffers.push( vector <string> { "" } );
+    }
+    return this;
+}
+
+
+
+/*
+    Trap off
+*/
+Log* Log::trapOff()
+{
+    if( !trapBuffers.empty() )
+    {
+        lineEnd();
+        trapBuffers.pop();
+    }
+    return this;
+}
+
+
+
+/*
+    Trap dump
+*/
+Log* Log::trapDump()
+{
+    if( !trapBuffers.empty() )
+    {
+        auto &trapBuffer = trapBuffers.top();
+        flush( implode( trapBuffer, "" ));
+        trapBuffer.clear();
+    }
+    return this;
+}
+
+
 

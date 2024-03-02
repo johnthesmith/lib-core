@@ -32,8 +32,14 @@ class Log
 {
     private:
         /* Параметры журнала */
+        /* активность лога влияет на команду Write */
+        bool                enabled         = true;
 
-        bool                enabled         = true;         /* активность лога влияет на команду Write */
+        /* False for traps enabled */
+        bool    trapEnabled                 = true;
+        /* Stack of trap buffer */
+        stack <vector <string>> trapBuffers;
+
         int                 depth           = 0;            /* глубина конструкций begin end */
         string              fileName        = "";           /* имя файла */
         LogRecord           typeLine        = lrNone;
@@ -161,12 +167,17 @@ class Log
 
 
 
-        Log* flush();
+        Log* flush
+        (
+            string
+        );
 
 
 
         /* Вывод символа завершения стоки */
         Log* eol();
+
+
 
         /* Вывод пробела */
         Log* space();
@@ -442,4 +453,25 @@ class Log
             ParamList*, /* Param list for dump */
             string = "" /* Comment for dump section */
         );
+
+
+
+        /*
+            Trap on
+        */
+        Log* trapOn();
+
+
+
+        /*
+            Trap off
+        */
+        Log* trapOff();
+
+
+
+        /*
+            Trap dump
+        */
+        Log* trapDump();
 };
