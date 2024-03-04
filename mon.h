@@ -133,6 +133,79 @@ class Mon : public Result
 
 
 
+        /*
+            Set now in to parameter
+        */
+        Mon* now
+        (
+            Path aPath
+        );
+
+
+
+        /*
+            Timer start
+        */
+        Mon* startTimer
+        (
+            Path aPath
+        );
+
+
+
+        /*
+            Timer stop
+        */
+        Mon* stopTimer
+        (
+            Path
+        );
+
+
+
+        /*
+            Conver timer to string
+        */
+        Mon* timerToString
+        (
+            Path,       /* Source path  */
+            Path = {}   /* Destination path */
+        );
+
+
+
+        /*
+            Dump result in to mon
+        */
+        Mon* dumpResult
+        (
+            Path aPath,
+            Result*
+        );
+
+
+
+        /*
+            Dump result in to mon
+        */
+        Mon* minInt
+        (
+            Path,
+            Path
+        );
+
+
+
+        /*
+            Dump result in to mon
+        */
+        Mon* maxInt
+        (
+            Path,
+            Path
+        );
+
+
         /**************************************************************************
             Services method
         */
@@ -149,6 +222,8 @@ class Mon : public Result
             Remove Удаляет файл статистики
         */
         Mon* drop();
+
+
 
 
 

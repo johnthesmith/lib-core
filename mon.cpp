@@ -1,6 +1,12 @@
+#include <climits>
+#include <iostream>
+
 #include "mon.h"
+#include "moment.h"
 
 
+
+using namespace std;
 
 /*
     Constructor
@@ -135,7 +141,7 @@ Mon* Mon::setBool
 Mon* Mon::addInt
 (
     Path aPath,
-    long long int aValue
+    long long aValue
 )
 {
     list -> setInt
@@ -161,6 +167,141 @@ Mon* Mon::addDouble
     (
         aPath,
         list -> getDouble( aPath, 0.0 ) + aValue
+    );
+    return this;
+}
+
+
+
+/*
+    Set now in to parameter
+*/
+Mon* Mon::now
+(
+    Path aPath
+)
+{
+    list -> setString( aPath, Moment().now().toString() );
+    return this;
+}
+
+
+
+/*
+    Timer start
+*/
+Mon* Mon::startTimer
+(
+    Path aPath
+)
+{
+    list -> setInt( aPath, Moment().now().get() );
+    return this;
+}
+
+
+
+/*
+    Stop timer
+*/
+Mon* Mon::stopTimer
+(
+    Path aPath
+)
+{
+    list -> setInt
+    (
+        aPath,
+        Moment().now().get() - list -> getInt( aPath, 0 )
+    );
+    return this;
+}
+
+
+
+/*
+    Conver timer to string
+*/
+Mon* Mon::timerToString
+(
+    Path aSource,   /* Source path */
+    Path aDest      /* Destination path */
+)
+{
+    if( aDest.empty() )
+    {
+        aDest = aSource;
+    }
+
+    list -> setString
+    (
+        aDest,
+        Moment( list -> getInt( aSource )).intervalToString()
+    );
+    return this;
+}
+
+
+
+/*
+    Dump result in to mon
+*/
+Mon* Mon::dumpResult
+(
+    Path aPath,
+    Result* aResult
+)
+{
+    list -> setPath( aPath )
+    -> setString( "code", aResult -> getCode() )
+    -> setString( "message", aResult -> getMessage() );
+    return this;
+}
+
+
+
+/*
+    Dump result in to mon
+*/
+Mon* Mon::minInt
+(
+    Path aDestPath,
+    Path aSourcePath
+)
+{
+
+    list -> setInt
+    (
+        aDestPath,
+        min
+        (
+            list -> getInt( aDestPath, LLONG_MAX ),
+            list -> getInt( aSourcePath, LLONG_MAX )
+        )
+    );
+    return this;
+}
+
+
+
+/*
+    Dump result in to mon
+*/
+Mon* Mon::maxInt
+(
+    Path aDestPath,
+    Path aSourcePath
+)
+{
+
+    list -> setInt
+    (
+        aDestPath,
+        max
+        (
+            list -> getInt( aDestPath, LLONG_MIN ),
+            list -> getInt( aSourcePath, LLONG_MIN )
+        )
     );
     return this;
 }
