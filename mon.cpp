@@ -187,6 +187,29 @@ Mon* Mon::now
 
 
 
+
+/*
+    Set now in to parameter
+*/
+Mon* Mon::interval
+(
+    Path aPathDest,
+    Path aPath1,
+    Path aPath2
+)
+{
+    list -> setString
+    (
+        aPathDest,
+        Moment( list -> getInt( aPath1))
+        .add( - list -> getInt( aPath2 ))
+        .intervalToString()
+    );
+    return this;
+}
+
+
+
 /*
     Timer start
 */

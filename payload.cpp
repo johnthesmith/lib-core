@@ -194,7 +194,7 @@ Payload* Payload::internalLoop()
         if( state == THREAD_STATE_WAIT_PAUSE )
         {
             state = THREAD_STATE_PAUSE;
-            onPause();
+            onPaused();
         }
 
         if( idling )

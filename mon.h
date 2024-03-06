@@ -138,7 +138,19 @@ class Mon : public Result
         */
         Mon* now
         (
-            Path aPath
+            Path
+        );
+
+
+
+        /*
+            Set now in to parameter
+        */
+        Mon* interval
+        (
+            Path,
+            Path,
+            Path
         );
 
 

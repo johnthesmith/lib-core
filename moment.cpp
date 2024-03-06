@@ -96,23 +96,23 @@ long long Moment::delta
 */
 string Moment::intervalToString()
 {
-    stringstream result;
-
     auto d = get();
 
     auto mcs = d % MILLISECOND;
-    auto mls = d / MILLISECOND % SECOND;
-    auto sec = d / SECOND % MINUTE;
-    auto min = d / MINUTE % HOUR;
-    auto hor = d / HOUR % DAY;
-    auto day = d / DAY % MONTH;
-    auto mon = d / MONTH % YEAR;
+    auto mls = ( d / MILLISECOND ) % 1000;
+    auto sec = ( d / SECOND ) % 60;
+    auto min = ( d / MINUTE ) % 60;
+    auto hor = ( d / HOUR ) % 24;
+    auto day = ( d / DAY ) % 30;
+    auto mon = ( d / MONTH ) % 365;
     auto yer = d / YEAR;
 
-    if( yer != 0 ) result << min << "year ";
-    if( mon != 0 ) result << min << "month ";
-    if( day != 0 ) result << min << "day ";
-    if( hor != 0 ) result << min << "hour ";
+    stringstream result;
+
+    if( yer != 0 ) result << yer << "year ";
+    if( mon != 0 ) result << mon << "month ";
+    if( day != 0 ) result << day << "day ";
+    if( hor != 0 ) result << hor << "hour ";
     if( min != 0 ) result << min << "min ";
     if( sec != 0 ) result << sec << "sec ";
     if( mls != 0 ) result << mls << "mls ";
