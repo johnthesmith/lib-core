@@ -162,3 +162,40 @@ Moment& Moment::set
     value = aValue;
     return *this;
 }
+
+
+
+/******************************************************************************
+*/
+
+/*
+    Plus Operator r = a + b
+*/
+Moment operator+
+(
+    const Moment& a,    /* First operand */
+    const Moment& b     /* Second operand */
+)
+{
+    return Moment
+    (
+        a.value + b.value
+    );
+}
+
+
+
+/*
+    Plus Operator r = a - b
+*/
+Moment operator-
+(
+    const Moment& a,    /* First operand */
+    const Moment& b     /* Second operand */
+)
+{
+    return Moment
+    (
+        a.value - b.value
+    );
+}

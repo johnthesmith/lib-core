@@ -19,7 +19,6 @@ class LogManager
         /* List of logs for application */
         map <string, Log*> logList;
 
-
         /*
             Return thread id for current payload
         */

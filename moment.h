@@ -133,4 +133,26 @@ struct Moment
         (
             long long = 0 /* Value */
         );
+
+
+
+        /**********************************************************************
+            Operators overload
+        */
+
+
+
+        friend Moment operator+
+        (
+            const Moment&,  /* First operand */
+            const Moment&   /* Second operand */
+        );
+
+
+
+        friend Moment operator-
+        (
+            const Moment&,  /* First operand */
+            const Moment&   /* Second operand */
+        );
 };

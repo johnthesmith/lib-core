@@ -49,6 +49,9 @@ Application::Application
         cli -> setValue( key, value );
     }
 
+    /* Create mon */
+    mon         = Mon::create( cli -> getString( "mon", "default.mon" ));
+
     /* Set log destination */
     getLog() -> setFileName( cli -> getString( "log", "" ) );
 }
@@ -60,6 +63,7 @@ Application::Application
 */
 Application::~Application()
 {
+    mon         -> destroy();
     cli         -> destroy();
     config      -> destroy();
     log         -> destroy();
@@ -158,6 +162,16 @@ Application*  Application::destroyThreadLog()
 Log* Application::getLog()
 {
     return getLogManager() -> getLog();
+}
+
+
+
+/*
+    Return mon object
+*/
+Mon* Application::getMon()
+{
+    return mon;
 }
 
 

@@ -100,6 +100,13 @@ class Payload : public Result
 
 
         /*
+            Get scene value
+        */
+        Mon* getMon();
+
+
+
+        /*
             Run payload
         */
         Payload* run

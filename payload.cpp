@@ -78,6 +78,16 @@ Log* Payload::getLog()
 
 
 /*
+    Get application monitor object
+*/
+Mon* Payload::getMon()
+{
+    return application -> getMon();
+}
+
+
+
+/*
     Get application object
 */
 Application* Payload::getApplication()

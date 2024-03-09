@@ -3,8 +3,8 @@
 #include <string>
 #include "result.h"
 #include "log.h"
+#include "mon.h"
 #include "log_manager.h"
-#include "../json/param_list.h"
 #include "../json/param_list_file.h"
 #include "../json/json.h"
 
@@ -23,7 +23,7 @@ class Application : public Result
         ParamListFile*  config      = NULL;
         Log*            log         = NULL;
         LogManager*     logManager  = NULL;
-
+        Mon*            mon         = NULL;
     public:
 
         /*
@@ -119,4 +119,11 @@ class Application : public Result
             Return log object
         */
         Log* getLog();
+
+
+
+        /*
+            Return mon object
+        */
+        Mon* getMon();
 };
