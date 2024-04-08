@@ -165,6 +165,27 @@ Moment& Moment::set
 
 
 
+/*
+    Return true for leap year
+*/
+bool Moment::isLeapYear()
+{
+    auto year = getYear();
+    return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
+}
+
+
+
+/*
+    Return number of year
+*/
+int Moment::getYear()
+{
+    int days = value / DAY;
+    return 0;//1970 + (int) ( (double)days / 365.2425);
+}
+
+
 /******************************************************************************
 */
 
@@ -199,3 +220,18 @@ Moment operator-
         a.value - b.value
     );
 }
+
+
+
+///*
+//
+//*/
+//Moment operator=
+//(
+//    const Moment& a,     /* First operand */
+//    const Moment& b      /* First operand */
+//)
+//{
+//    a.value = b.value;
+//    return a;
+//}

@@ -1,6 +1,7 @@
 #include <sstream>
 #include <iomanip>
 #include "buffer_to_hex.h"
+#include "console.h"
 
 
 string bufferToHex
@@ -25,25 +26,25 @@ string bufferToHex
             << setw(2)
             << setfill( '0' )
             << (int) (( unsigned char* ) aBuffer )[ i ]
-            << ' '
+            << INK_GREEN
             <<
             (
-                (( unsigned char* ) aBuffer )[ i ] >= 32
+                (( unsigned char* ) aBuffer )[ i ] > 31 &&
+                (( unsigned char* ) aBuffer )[ i ] < 128
                 ? (( char* ) aBuffer )[ i ]
                 : ' '
             )
-            << ' '
+            << INK_DEFAULT
             <<
             (
                 ( ( i + 1 ) % aCountInGroup == 0 )
                 ? aGroupDelimiter
-                : ""
-            )
-            <<
-            (
-                ( ( i + 1 ) % aCountInLine == 0 )
-                ? aLineDelimiter
-                : aHexDelimiter
+                :
+                (
+                    ( ( i + 1 ) % aCountInLine == 0 )
+                    ? aLineDelimiter
+                    : aHexDelimiter
+                )
             );
         }
 

@@ -9,19 +9,19 @@ using namespace std;
 
 
 /*
-    List of types
+    Enumeration defining different parameter types
 */
 enum ParamType
 {
-    KT_UNKNOWN, /* 0 */
-    KT_BOOL,    /* 1 */
-    KT_STRING,  /* 2 */
-    KT_DATA,    /* 3 */
-    KT_INT,     /* 4 */
-    KT_DOUBLE,  /* 5 */
-    KT_OBJECT,  /* 6 */
-    KT_ARRAY,   /* 7 */
-    KT_NULL     /* 8 */
+    KT_UNKNOWN,   /* Unknown data type */
+    KT_BOOL,      /* Boolean data type */
+    KT_STRING,    /* String data type */
+    KT_DATA,      /* Data type for representing binary data */
+    KT_INT,       /* Integer data type */
+    KT_DOUBLE,    /* Double data type */
+    KT_OBJECT,    /* Object data type (structures, classes, etc.) */
+    KT_ARRAY,     /* Array data type */
+    KT_NULL       /* Null data type (no value) */
 };
 
 

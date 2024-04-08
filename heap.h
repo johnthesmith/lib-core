@@ -140,7 +140,7 @@ class Heap
         /*
             Remove one element and resize object
         */
-        void* remove
+        virtual void* remove
         (
             int
         );
@@ -149,7 +149,7 @@ class Heap
         /*
             Remove one element and resize object
         */
-        void* remove
+        virtual void* remove
         (
             void*
         );
@@ -159,7 +159,7 @@ class Heap
         /*
             Remove elements by lambda condition
         */
-        Heap* remove
+        virtual Heap* remove
         (
             function <bool ( void* )>,
             Heap* = NULL                  /* Removing. Warning!!! Must be empty */

@@ -437,22 +437,51 @@ Heap* Heap::bite
 
 
 /*
-    Loop with lyambda
+    Loop with lambda function over all items in the heap.
+ 
+    Parameters:
+        callback: A lambda function taking a pointer to an item in the heap and
+            returning a boolean value indicating whether the iteration should continue.
+            Note: The lambda function should have the following prototype:
+                bool callback(void* item)
+
+    Returns:
+        A pointer to the heap object, allowing method chaining.
+
+    Example:
+        // Assume heap is an instance of Heap
+        // This lambda will print each item in the heap
+        heap->loop(
+            [](void* item) {
+                cout << "Item: " << item << endl;
+                // Continue iteration
+                return false;
+            }
+        );
 */
 Heap* Heap::loop
 (
+    /* Lambda function applied to each item */
     function <bool ( void* )> callback
 )
 {
+    /*
+        Iterate over all items in the heap
+        and apply the lambda function to each item.
+        If the lambda function returns true for any item,
+        the iteration stops.
+    */
     bool stop = false;
     auto c = getCount();
     auto items = getItems();
 
     for( int i = 0; i < c && !stop; i++ )
     {
+        /* Apply the lambda function to the current item */
         stop = callback( items[ i ] );
     }
 
+    /* Return a pointer to the heap object */
     return this;
 }
 

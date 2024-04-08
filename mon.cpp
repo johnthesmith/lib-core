@@ -341,17 +341,29 @@ Mon* Mon::maxInt
 */
 Mon* Mon::flush()
 {
-    auto handle = fopen( file.c_str(), "w" );
-    if( handle == NULL )
+
+    if( !checkPath( getPath( file )))
     {
-        setResult( "mon_file_open_error" ) -> getDetails() -> setString( "file", file );
+        setResult( "mon_path_check_error" )
+        -> getDetails()
+        -> setString( "file", file );
     }
     else
     {
-        /* Write to file */
-        auto buff = list -> toString();
-        fwrite( buff.c_str(), buff.length(), 1, handle );
-        fclose( handle );
+        auto handle = fopen( file.c_str(), "w" );
+        if( handle == NULL )
+        {
+            setResult( "mon_file_open_error" )
+            -> getDetails()
+            -> setString( "file", file );
+        }
+        else
+        {
+            /* Write to file */
+            auto buff = list -> toString();
+            fwrite( buff.c_str(), buff.length(), 1, handle );
+            fclose( handle );
+        }
     }
     return this;
 }

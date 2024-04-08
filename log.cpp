@@ -1,6 +1,7 @@
 #include <string>
 #include <stack>
 #include <iostream>
+#include <sstream>
 
 #include "log.h"
 #include "str.h"
@@ -71,10 +72,17 @@ Log* Log::open()
 {
     if( !isOpen() && fileName != "" )
     {
-        fileHandle = fopen( fileName.c_str(), "a" );
-        if( !isOpen() )
+        if( checkPath( getPath( fileName )))
         {
-            cout << "File open error for " << fileName << "\n";
+            fileHandle = fopen( fileName.c_str(), "a" );
+            if( !isOpen() )
+            {
+                cout << "Log file open error for " << fileName << endl;
+            }
+        }
+        else
+        {
+            cout << "Log file path check error for " << fileName << endl;
         }
     }
     return this;

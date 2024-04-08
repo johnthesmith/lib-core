@@ -56,16 +56,6 @@ struct Moment
 
 
 
-        /*
-            Create moment
-        */
-        static Moment create
-        (
-            long long = 0 /* Default value */
-        );
-
-
-
         /**********************************************************************
             Methods
         */
@@ -135,6 +125,18 @@ struct Moment
         );
 
 
+        /*
+            Return true for leap year
+        */
+        bool isLeapYear();
+
+
+
+        /*
+            Return number of year
+        */
+        int getYear();
+
 
         /**********************************************************************
             Operators overload
@@ -155,4 +157,12 @@ struct Moment
             const Moment&,  /* First operand */
             const Moment&   /* Second operand */
         );
+
+
+
+//        friend Moment operator=
+//        (
+//            const Moment&,  /* First operand */
+//            const Moment&   /* Second operand */
+//        );
 };

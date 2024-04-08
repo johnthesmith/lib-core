@@ -256,15 +256,11 @@ bool checkPath
     const string aPath
 )
 {
-    bool result = false;
-    if( !fileExists( aPath ))
+    bool result = true;
+    if( aPath != "" && !fileExists( aPath ))
     {
         mkDir( aPath );
         result = fileExists( aPath );
-    }
-    else
-    {
-        result = true;
     }
     return result;
 }
