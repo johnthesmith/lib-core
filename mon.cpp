@@ -181,7 +181,7 @@ Mon* Mon::now
     Path aPath
 )
 {
-    list -> setString( aPath, Moment().now().toString() );
+    list -> setString( aPath, Moment().setNow().toString() );
     return this;
 }
 
@@ -218,7 +218,7 @@ Mon* Mon::startTimer
     Path aPath
 )
 {
-    list -> setInt( aPath, Moment().now().get() );
+    list -> setInt( aPath, Moment().setNow().get() );
     return this;
 }
 
@@ -235,7 +235,7 @@ Mon* Mon::stopTimer
     list -> setInt
     (
         aPath,
-        Moment().now().get() - list -> getInt( aPath, 0 )
+        Moment().setNow().get() - list -> getInt( aPath, 0 )
     );
     return this;
 }

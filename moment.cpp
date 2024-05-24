@@ -18,7 +18,8 @@
 */
 Moment::Moment
 (
-    long long aValue
+    /* Default value */
+    long long int aValue
 )
 {
     set( aValue );
@@ -35,19 +36,9 @@ Moment::Moment
 /*
     Set now in to value
 */
-Moment& Moment::now()
+Moment& Moment::setNow()
 {
-    /* TODO use the utils::now */
-
-    struct timespec Current;
-
-    set
-    (
-        clock_gettime( CLOCK_REALTIME, &Current ) == 0
-        ? Current.tv_sec * 1000000 + Current.tv_nsec / 1000
-        : 0
-    );
-
+    set( now() );
     return *this;
 }
 
@@ -178,10 +169,11 @@ bool Moment::isLeapYear()
 
 /*
     Return number of year
+    TODO
 */
 int Moment::getYear()
 {
-    int days = value / DAY;
+    // int days = value / DAY;
     return 0;//1970 + (int) ( (double)days / 365.2425);
 }
 

@@ -307,7 +307,8 @@ Log* Log::value
     {
         setColor( colorValueZero );
     }
-    text( to_string( a ) );
+
+    text( toString( a, 10 ) );
     popColor();
     return this;
 }
@@ -465,7 +466,7 @@ Log* Log::prm
     text( aTitle );
     space();
     setColor( colorValue );
-    value ( aValue );
+    value( aValue );
     setColor( colorLabel );
     text( "]" );
     popColor();
@@ -742,6 +743,7 @@ Log* Log::info
     string a    /* Message */
 )
 {
+    trapDump();
     lineBegin( lrInfo );
     write( a );
     return this;

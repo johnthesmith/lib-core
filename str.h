@@ -37,6 +37,14 @@ using namespace std;
 
 
 
+
+bool isNum
+(
+    const string&
+);
+
+
+
 /*
     строку AValue выровненную до длилны ALength символами AChar по правилу ATextAlign
 */

@@ -51,7 +51,7 @@ struct Moment
         */
         Moment
         (
-            long long = 0 /* Default value */
+            long long int = 0 /* Default value */
         );
 
 
@@ -65,7 +65,7 @@ struct Moment
         /*
             Set now in to value
         */
-        Moment& now();
+        Moment& setNow();
 
 
 

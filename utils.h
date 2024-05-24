@@ -33,27 +33,6 @@ long long now();
 
 
 
-bool stringToBool
-(
-    string
-);
-
-
-
-long long int stringToInt
-(
-    string
-);
-
-
-
-double stringToDouble
-(
-    string
-);
-
-
-
 const vector<string> explode
 (
     const string&,
@@ -200,18 +179,6 @@ unsigned int utfCount
 
 
 
-
-/*
-    Convert char memory to string
-*/
-string toString
-(
-    char*,
-    unsigned long long int
-);
-
-
-
 /*
     Convert string to lower
 */
@@ -234,3 +201,65 @@ void b
 (
     double = 0
 );
+
+
+
+/******************************************************************************
+    Convertors
+*/
+
+enum DoubleFormat
+{
+    DF_MIXED,   /* 0, 0.1, 0-10 etc */
+    DF_SCIENT,  /* -0.0-e0  */
+    DF_FIXED    /* -0.000000 */
+};
+
+
+
+/*
+    Convert char memory to string
+*/
+string toString
+(
+    /* Buffer */
+    char*,
+    /* Size of buffer */
+    unsigned long long int
+);
+
+
+
+/*
+    Counvert double to string
+*/
+string toString
+(
+    /* Value for converting */
+    double,                     /* value */
+    unsigned short int = 6,     /* precision */
+    DoubleFormat = DF_FIXED     /* fixed Zero chars after point */
+);
+
+
+
+bool toBool
+(
+    string
+);
+
+
+
+long long int toInt
+(
+    string
+);
+
+
+
+double toDouble
+(
+    string
+);
+
+

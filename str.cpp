@@ -1,10 +1,25 @@
 #include <string>
+#include <cstring>
 #include "str.h"
 
 
 
 using namespace std;
 
+
+
+bool isNum
+(
+    const string& a
+)
+{
+    auto ch = a.c_str();
+    for( int i=0, n = strlen( ch ); i < n; i++ )
+    {
+        if( ch[ i ] < '0' || ch[ i ] > '9') return false;
+    }
+    return true;
+}
 
 
 /*

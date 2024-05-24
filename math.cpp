@@ -1,6 +1,45 @@
 #include "math.h"
 
 
+
+/*
+    Value normalization
+*/
+double norm
+(
+    double  aValue, /* Value */
+    double  aMin,   /* Minimam value will be 0.0 */
+    double  aMax,   /* Maximum value will be 1.0 */
+    bool    aCut    /* Cut reusult form 0 to 1 for true */
+)
+{
+    auto delta = aMax - aMin;
+    auto result = delta > EPSILON_D ? ( aValue - aMin ) / delta : 0;
+    return aCut
+    ? ( result < 0.0 ? 0.0 : ( result > 1.0 ? 1.0 : result ) )
+    : result;
+}
+
+
+
+double norm
+(
+    double aValue,  /* Value */
+    double aMin,    /* Minimam value will be minimal limit */
+    double aMax,    /* Maximum value will be maximal limit */
+    double aLimMin, /* Minimal limit */
+    double aLimMax, /* Maximal limit */
+    bool   aCut     /* Cut reusult form 0 to 1 for true */
+)
+{
+    return aLimMin + norm( aValue, aMin, aMax, aCut ) * ( aLimMax - aLimMin );
+}
+
+
+
+
+
+
 /*
 double Math::catmull
 (

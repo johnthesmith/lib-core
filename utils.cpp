@@ -1,6 +1,8 @@
 #include <time.h>
 #include <iostream>
 #include <string>
+#include <iomanip>
+#include <sstream>
 #include <cstring>
 #include <regex>
 #include <dirent.h>
@@ -24,37 +26,6 @@ long long now()
     clock_gettime( CLOCK_REALTIME, &Current ) == 0
     ? Current.tv_sec * 1000000 + Current.tv_nsec / 1000
     : 0;
-}
-
-
-
-
-bool stringToBool
-(
-    string a
-)
-{
-    return a == "true" || a == "TRUE";
-}
-
-
-
-long long int stringToInt
-(
-    string a
-)
-{
-    return atol( a.c_str() );
-}
-
-
-
-double stringToDouble
-(
-    string a
-)
-{
-    return atof( a.c_str() );
 }
 
 
@@ -425,24 +396,6 @@ unsigned int utfCount
 
 
 /*
-    Convert char memory to string
-*/
-string toString
-(
-    char* aBuffer,
-    unsigned long long int aSize
-)
-{
-    char c[ aSize + 1 ];
-    memcpy( c, aBuffer, aSize );
-    c[ aSize ] = 0;     /* 0 trminator */
-    string result( c );
-    return result;
-}
-
-
-
-/*
     Convert string to lower
 */
 void toLowerCase
@@ -459,6 +412,9 @@ void toLowerCase
 
 
 
+
+/*
+*/
 void b
 (
     string a
@@ -483,4 +439,88 @@ void b
     {
         exit( 0 );
     }
+}
+
+
+
+/******************************************************************************
+    Convertors
+*/
+
+/*
+    Convert char memory to string
+*/
+string toString
+(
+    /* Buffer */
+    char* aBuffer,
+    /* Size of buffer */
+    unsigned long long int aSize
+)
+{
+    char c[ aSize + 1 ];
+    memcpy( c, aBuffer, aSize );
+    /* 0 trminator */
+    c[ aSize ] = 0;
+    string result( c );
+    return result;
+}
+
+
+
+/*
+    Counvert double to string
+*/
+string toString
+(
+    /* Value for converting */
+    double              aValue,
+    unsigned short int  aPrecision,
+    DoubleFormat        aFormat
+)
+{
+    stringstream s;
+
+    switch( aFormat )
+    {
+        default:
+        case DF_FIXED   : s << fixed; break;
+        case DF_MIXED   : /* default */ break;
+        case DF_SCIENT  : s << scientific; break;
+    }
+
+    s << setprecision( aPrecision ) << aValue;
+
+    return s.str();
+}
+
+
+
+
+bool toBool
+(
+    string a
+)
+{
+    return a == "true" || a == "TRUE";
+}
+
+
+
+long long int toInt
+(
+    string a
+)
+{
+    return atol( a.c_str() );
+}
+
+
+
+double toDouble
+(
+    string a
+)
+{
+    return atof( a.c_str() );
 }
