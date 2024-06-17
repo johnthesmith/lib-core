@@ -3,6 +3,7 @@
 
 
 #include "chain.h"
+#include "buffer_d1.h"
 #include "chain_item_d1.h"
 
 
@@ -82,4 +83,13 @@ class ChainD1 : public Chain
             function <bool ( ChainItemD1* )>
         );
 
+
+
+        /*
+            Put data in to double buffer
+        */
+        ChainD1* toBuffer
+        (
+            BufferD1*
+        );
 };

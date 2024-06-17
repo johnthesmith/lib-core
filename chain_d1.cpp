@@ -141,3 +141,29 @@ ChainD1* ChainD1::loopFront
     );
     return this;
 }
+
+
+
+
+/*
+    Put data in to double buffer
+*/
+ChainD1* ChainD1::toBuffer
+(
+    BufferD1* aBuffer
+)
+{
+    aBuffer -> setCount( getCount() );
+    auto i = 0;
+    loopFront
+    (
+        [ &i, &aBuffer ]
+        ( ChainItemD1* aItem )
+        {
+            aBuffer -> setValue( i, aItem -> getValue() );
+            i++;
+            return false;
+        }
+    );
+    return this;
+}
