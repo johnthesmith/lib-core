@@ -19,7 +19,10 @@ BufferD1::BufferD1
 */
 BufferD1::~BufferD1()
 {
-    setCount( 0 );
+    if( !foreign )
+    {
+        setCount( 0 );
+    }
 }
 
 
@@ -120,6 +123,23 @@ BufferD1* BufferD1::setCount
 long long int BufferD1::getCount()
 {
     return count;
+}
+
+
+
+BufferD1* BufferD1::setMem
+(
+    char* aMemBuffer,
+    size_t aMemSize
+)
+{
+    if( count == 0 )
+    {
+        buffer = ( double* ) aMemBuffer;
+        count = aMemSize / sizeof( double );
+        foreign = true;
+    }
+    return this;
 }
 
 

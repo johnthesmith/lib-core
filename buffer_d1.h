@@ -10,6 +10,7 @@ class BufferD1 : public Result
 
         double* buffer;
         long long int count;
+        bool foreign = false;
 
     public:
 
@@ -87,6 +88,18 @@ class BufferD1 : public Result
             Return count of items
         */
         long long int getCount();
+
+
+
+        /*
+            Set buffer from memory
+            Buffer have to empty
+        */
+        BufferD1* setMem
+        (
+            char* aMemBuffer,
+            size_t aMemSize
+        );
 
 
 

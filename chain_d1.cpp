@@ -167,3 +167,46 @@ ChainD1* ChainD1::toBuffer
     );
     return this;
 }
+
+
+
+
+/*
+    Put data from double buffer in to chain
+*/
+ChainD1* ChainD1::fromBuffer
+(
+    BufferD1* aBuffer
+)
+{
+    /* Clear current */
+    clear();
+    auto c = aBuffer -> getCount();
+
+    /* Fill the chain */
+    for( unsigned long long int i = 0 ; i < c; i++ )
+    {
+        createLast( aBuffer -> getValue( i ));
+    }
+
+    return this;
+}
+
+
+
+
+/*
+    Put data from memory buffer in to chain
+*/
+ChainD1* ChainD1::fromBuffer
+(
+    char* aBuffer,  /* Memory buffer */
+    size_t aSize    /* Size of buffer in bytes */
+)
+{
+    auto buffer = BufferD1::create() -> setMem( aBuffer, aSize );
+    fromBuffer( buffer);
+    buffer -> destroy();
+
+    return this;
+}

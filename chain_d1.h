@@ -92,4 +92,25 @@ class ChainD1 : public Chain
         (
             BufferD1*
         );
+
+
+
+        /*
+            Put data from double buffer in to chain
+        */
+        ChainD1* fromBuffer
+        (
+            BufferD1*
+        );
+
+
+
+        /*
+            Put data from memory buffer in to chain
+        */
+        ChainD1* fromBuffer
+        (
+            char*,  /* Memory buffer */
+            size_t  /* Size of buffer in bytes */
+        );
 };
