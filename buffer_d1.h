@@ -1,15 +1,28 @@
+/*
+    This is a double memory buffer
+    Contains the methods for access
+*/
 #pragma once
 
 
+
 #include "result.h"
+
 
 
 class BufferD1 : public Result
 {
     private:
 
-        double* buffer;
-        long long int count;
+        /* Buffer memory pointer */
+        double* buffer = NULL;
+        /* Size of buffer */
+        long long int count = 0;
+        /*
+            Buffer is foreign
+            true - buffer is foreign, exernal memory buffer is using
+            false - buffer is private (create and destroy by this object)
+        */
         bool foreign = false;
 
     public:
@@ -114,4 +127,15 @@ class BufferD1 : public Result
             Return size of bufer
         */
         size_t getMemSize();
+
+
+
+        /*
+            Dump to strout
+        */
+        BufferD1* dump
+        (
+            unsigned long long int = 0,
+            unsigned long long int = 0
+        );
 };

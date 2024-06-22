@@ -12,7 +12,7 @@ class ChartData : public ChainD1
         double  maxY = 0;
         double  minX = 0;
         double  maxX = 0;
-        int     maxCount = 1000;
+        int     maxCount = 100;
         bool    autoMinY = true;
         bool    autoMaxY = true;
     public:

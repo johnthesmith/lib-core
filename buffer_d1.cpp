@@ -1,4 +1,10 @@
+#include <cmath>
+#include <iostream>
+
 #include "buffer_d1.h"
+
+using namespace std;
+
 
 
 /*
@@ -106,15 +112,26 @@ BufferD1* BufferD1::setCount
     long long int aCount
 )
 {
-    if( aCount != count )
+    if( aCount != count && !foreign )
     {
-        /* Delete old buffer */
-        delete [] buffer;
-        /* Reallocate new buffer */
-        buffer = new double[ aCount ];
+        /* Delete old buffer if exists */
+        if( buffer != NULL )
+        {
+            delete [] buffer;
+            buffer = NULL;
+        }
+
+        /* Reallocate new buffer for count more 0 */
+        if( aCount > 0 )
+        {
+            buffer = new double[ aCount ];
+        }
+        count = aCount;
     }
+
     return this;
 }
+
 
 
 /*
@@ -127,6 +144,8 @@ long long int BufferD1::getCount()
 
 
 
+/*
+*/
 BufferD1* BufferD1::setMem
 (
     char* aMemBuffer,
@@ -160,4 +179,24 @@ char* BufferD1::getMemBuffer()
 size_t BufferD1::getMemSize()
 {
     return count * sizeof( double );
+}
+
+
+
+/*
+    Dump to strout
+*/
+BufferD1* BufferD1::dump
+(
+    unsigned long long int aFrom,
+    unsigned long long int aCount
+)
+{
+    auto f = fmax( aFrom, 0 );
+    auto c = fmin( count, aCount == 0 ? count : ( f + aCount ));
+    for( auto i = f; i < c; i++ )
+    {
+        cout << i << ":" << getValue( i ) << "\n";
+    }
+    return this;
 }
