@@ -163,16 +163,16 @@ string ChartData::toString
     if( aSize > 0 )
     {
         auto current = (ChainItemD1*) getFirst();
-        if( current != NULL )
+        auto shift = ( double )getCount() / ( double ) aSize;
+        double accum = 0;
+
+        for( unsigned long long int pos = 0; pos < aSize; pos ++ )
         {
-            auto shift = ( double )getCount() / ( double ) aSize;
-            double accum = 0;
+            double average = 0;
+            accum += shift;
 
-            for( unsigned long long int pos = 0; pos < aSize; pos ++ )
+            if( current != NULL )
             {
-                double average = 0;
-                accum += shift;
-
                 if( accum < 1 )
                 {
                     average = current -> getValue();
@@ -180,45 +180,43 @@ string ChartData::toString
                 else
                 {
                     auto countItems = floor( accum );
-                    double summ = 0.0;
-
                     for( unsigned long long i = 0; i < countItems; i ++ )
                     {
-//                        summ += current -> getValue();
                         average = max( average, current -> getValue());
                         current = (ChainItemD1*) current -> getNext();
                     }
-
-//                    average = summ / countItems;
                     accum = accum - countItems;
                 }
+            }
 
-                switch( (int) norm( average, minY, maxY, 0.0, 8.0, true ) )
-                {
-                    case 0: result << " "; break;
-                    case 1: result << "▁"; break;
-                    case 2: result << "▂"; break;
-                    case 3: result << "▃"; break;
-                    case 4: result << "▄"; break;
-                    case 5: result << "▅"; break;
-                    case 6: result << "▆"; break;
-                    case 7: result << "▇"; break;
-                    case 8: result << "█"; break;
-                    default: result << "*"; break;
-                }
+            switch( (int) norm( average, minY, maxY, 0.0, 8.0, true ) )
+            {
+                case 0: result << " "; break;
+                case 1: result << "▁"; break;
+                case 2: result << "▂"; break;
+                case 3: result << "▃"; break;
+                case 4: result << "▄"; break;
+                case 5: result << "▅"; break;
+                case 6: result << "▆"; break;
+                case 7: result << "▇"; break;
+                case 8: result << "█"; break;
+                default: result << "*"; break;
             }
         }
+
+        auto last = ( ChainItemD1* ) getLast();
         result
-        << " l:"
-        << (( ChainItemD1* ) getLast()) -> getValue()
-        << " n:"
+        << " last:"
+        << ( last == NULL ? 0.0 : last -> getValue() )
+        << " min:"
         << minY
-        << " x:"
+        << " max:"
         << maxY
-        << " c:"
+        << " count:"
         << getCount()
         ;
     }
+
     return result.str();
 }
 
