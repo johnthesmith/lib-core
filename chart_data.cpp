@@ -31,15 +31,16 @@ void  ChartData::destroy()
 
 
 
+
 /*
     Push new element
 */
-ChartData* ChartData::push
+ChainItemD1* ChartData::createLast
 (
     double a
 )
 {
-    createLast( a );
+    auto result = ChainD1::createLast( a );
 
     if( getCount() > maxCount && maxCount != 0 )
     {
@@ -51,12 +52,13 @@ ChartData* ChartData::push
     {
         minY = a;
     }
+
     if( autoMaxY && a > maxY )
     {
         maxY = a;
     }
 
-    return this;
+    return result;
 }
 
 

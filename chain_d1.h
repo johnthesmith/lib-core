@@ -48,7 +48,7 @@ class ChainD1 : public Chain
         /*
             Insert the argument in to back of list
         */
-        ChainItemD1* createLast
+        virtual ChainItemD1* createLast
         (
             double
         );

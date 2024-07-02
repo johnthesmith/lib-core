@@ -34,7 +34,7 @@ class ChartData : public ChainD1
         /*
             Push new element
         */
-        ChartData* push
+        virtual ChainItemD1* createLast
         (
             double
         );
@@ -110,9 +110,4 @@ class ChartData : public ChainD1
         (
             long long int
         );
-
-
-
-
-
 };
