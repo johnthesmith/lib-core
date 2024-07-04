@@ -1,5 +1,8 @@
 #include <climits>
+#include <cstdio>
 #include <iostream>
+#include <unistd.h>
+#include <sys/file.h>
 
 #include "mon.h"
 #include "moment.h"
@@ -17,7 +20,7 @@ Mon::Mon
 )
 {
     file = aFile;
-    list = ParamList::create();
+    list = Json::create();
 }
 
 
@@ -69,9 +72,9 @@ Mon* Mon::setString
     bool aOnce      /* Once set value */
 )
 {
-    if( !aOnce || !list -> exists( aPath ))
+    if( !aOnce || !list -> getParamList() -> exists( aPath ))
     {
-        list -> setString( aPath, aValue );
+        list -> getParamList() -> setString( aPath, aValue );
     }
     return this;
 }
@@ -88,9 +91,9 @@ Mon* Mon::setInt
     bool aOnce              /* Once set value */
 )
 {
-    if( !aOnce || !list -> exists( aPath ) )
+    if( !aOnce || !list -> getParamList() -> exists( aPath ) )
     {
-        list -> setInt( aPath, aValue );
+        list -> getParamList() -> setInt( aPath, aValue );
     }
     return this;
 }
@@ -107,9 +110,9 @@ Mon* Mon::setDouble
     bool aOnce      /* Once set value */
 )
 {
-    if( !aOnce || !list -> exists( aPath ))
+    if( !aOnce || !list -> getParamList() -> exists( aPath ))
     {
-        list -> setDouble( aPath, aValue );
+        list -> getParamList() -> setDouble( aPath, aValue );
     }
     return this;
 }
@@ -126,9 +129,9 @@ Mon* Mon::setBool
     bool aOnce      /* Once set value */
 )
 {
-    if( !aOnce || !list -> exists( aPath ))
+    if( !aOnce || !list -> getParamList() -> exists( aPath ))
     {
-        list -> setBool( aPath, aValue );
+        list -> getParamList() -> setBool( aPath, aValue );
     }
     return this;
 }
@@ -144,10 +147,10 @@ Mon* Mon::addInt
     long long aValue
 )
 {
-    list -> setInt
+    list -> getParamList() -> setInt
     (
         aPath,
-        list -> getInt( aPath, 0 ) + aValue
+        list  -> getParamList() -> getInt( aPath, 0 ) + aValue
     );
     return this;
 }
@@ -163,10 +166,10 @@ Mon* Mon::addDouble
     double aValue
 )
 {
-    list -> setDouble
+    list  -> getParamList() -> setDouble
     (
         aPath,
-        list -> getDouble( aPath, 0.0 ) + aValue
+        list -> getParamList() -> getDouble( aPath, 0.0 ) + aValue
     );
     return this;
 }
@@ -181,7 +184,7 @@ Mon* Mon::now
     Path aPath
 )
 {
-    list -> setString( aPath, Moment().setNow().toString() );
+    list  -> getParamList() -> setString( aPath, Moment().setNow().toString() );
     return this;
 }
 
@@ -198,11 +201,11 @@ Mon* Mon::interval
     Path aPath2
 )
 {
-    list -> setString
+    list  -> getParamList() -> setString
     (
         aPathDest,
-        Moment( list -> getInt( aPath1))
-        .add( - list -> getInt( aPath2 ))
+        Moment( list  -> getParamList() -> getInt( aPath1))
+        .add( - list  -> getParamList() -> getInt( aPath2 ))
         .intervalToString()
     );
     return this;
@@ -218,7 +221,7 @@ Mon* Mon::startTimer
     Path aPath
 )
 {
-    list -> setInt( aPath, Moment().setNow().get() );
+    list -> getParamList() -> setInt( aPath, Moment().setNow().get() );
     return this;
 }
 
@@ -232,7 +235,7 @@ Mon* Mon::stopTimer
     Path aPath
 )
 {
-    list -> setInt
+    list -> getParamList() -> setInt
     (
         aPath,
         Moment().setNow().get() - list -> getInt( aPath, 0 )
@@ -256,7 +259,7 @@ Mon* Mon::timerToString
         aDest = aSource;
     }
 
-    list -> setString
+    list -> getParamList() -> setString
     (
         aDest,
         Moment( list -> getInt( aSource )).intervalToString()
@@ -275,7 +278,7 @@ Mon* Mon::dumpResult
     Result* aResult
 )
 {
-    list -> setPath( aPath )
+    list -> getParamList() -> setPath( aPath )
     -> setString( "code", aResult -> getCode() )
     -> setString( "message", aResult -> getMessage() );
     return this;
@@ -293,13 +296,13 @@ Mon* Mon::minInt
 )
 {
 
-    list -> setInt
+    list -> getParamList() -> setInt
     (
         aDestPath,
         min
         (
-            list -> getInt( aDestPath, LLONG_MAX ),
-            list -> getInt( aSourcePath, LLONG_MAX )
+            list -> getParamList() -> getInt( aDestPath, LLONG_MAX ),
+            list -> getParamList() -> getInt( aSourcePath, LLONG_MAX )
         )
     );
     return this;
@@ -317,13 +320,13 @@ Mon* Mon::maxInt
 )
 {
 
-    list -> setInt
+    list -> getParamList() -> setInt
     (
         aDestPath,
         max
         (
-            list -> getInt( aDestPath, LLONG_MIN ),
-            list -> getInt( aSourcePath, LLONG_MIN )
+            list -> getParamList() -> getInt( aDestPath, LLONG_MIN ),
+            list -> getParamList() -> getInt( aSourcePath, LLONG_MIN )
         )
     );
     return this;
@@ -350,7 +353,14 @@ Mon* Mon::flush()
     }
     else
     {
-        auto handle = fopen( file.c_str(), "w" );
+        auto buff = list -> toString();
+
+        auto handle = fopen( file.c_str(), "r+" );
+        if( handle == NULL )
+        {
+            handle = fopen( file.c_str(), "w+" );
+        }
+
         if( handle == NULL )
         {
             setResult( "mon_file_open_error" )
@@ -359,9 +369,15 @@ Mon* Mon::flush()
         }
         else
         {
+            auto handleno = fileno( handle );
+            auto buffsize = buff.length();
+
             /* Write to file */
-            auto buff = list -> toString();
-            fwrite( buff.c_str(), buff.length(), 1, handle );
+            flock( handleno, LOCK_EX );
+            ftruncate( handleno, buffsize );
+            fseek( handle, 0, SEEK_SET );
+            fwrite( buff.c_str(), buffsize, 1, handle );
+            flock( handleno, LOCK_UN );
             fclose( handle );
         }
     }

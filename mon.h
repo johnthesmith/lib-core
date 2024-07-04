@@ -6,7 +6,7 @@
 #pragma once
 
 #include "result.h"
-#include "../json/param_list.h"
+#include "../json/json.h"
 
 
 
@@ -21,7 +21,7 @@ class Mon : public Result
         /* File path and name for the monitoring dump */
         string file         = "";
         /* Monitoring list */
-        ParamList*  list    = NULL;
+        Json*  list    = NULL;
 
     public:
 
