@@ -80,7 +80,8 @@ class ChainD1 : public Chain
         */
         ChainD1* loopFront
         (
-            function <bool ( ChainItemD1* )>
+            function <bool ( ChainItemD1* )>,
+            ChainItem* = NULL
         );
 
 
@@ -112,5 +113,34 @@ class ChainD1 : public Chain
         (
             char*,  /* Memory buffer */
             size_t  /* Size of buffer in bytes */
+        );
+
+
+
+        /*
+            Return avg( Ni - Ni+1)
+        */
+        double avgDelta();
+
+
+
+        /*
+            Smoth the chain values with glided average
+        */
+        ChainD1* smoth
+        (
+            double,     /* Part of Smoth from count from 0.0 to 1.0 */
+            ChainD1*    /* Destination object */
+        );
+
+
+
+        /*
+            Calculate and return current minimum and maximum value
+        */
+        ChainD1* calcMinMaxY
+        (
+            double&aMin,
+            double&aMax
         );
 };

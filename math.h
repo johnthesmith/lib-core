@@ -1,5 +1,9 @@
 #pragma once
 
+/* Pi constant */
+static const double PI = 3.14159265358979323846;
+
+/* Minimal value  */
 static const double EPSILON_D = 1e-9;
 
 

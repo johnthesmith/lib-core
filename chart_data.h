@@ -8,8 +8,8 @@
 class ChartData : public ChainD1
 {
     private:
-        double  minY = 0;
-        double  maxY = 0;
+        double  minY = 0.0;
+        double  maxY = 1.0;
         double  minX = 0;
         double  maxX = 0;
         int     maxCount = 1000;

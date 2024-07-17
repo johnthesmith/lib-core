@@ -351,11 +351,12 @@ Chain* Chain::loopBack
 */
 Chain* Chain::loopFront
 (
-    function <bool ( ChainItem* )> aCallback
+    function <bool ( ChainItem* )> aCallback,
+    ChainItem* aStart
 )
 {
     auto stop = false;
-    auto current = getFirst();
+    auto current = aStart == NULL ? getFirst() : aStart;
     while( !stop && current != NULL )
     {
         stop = aCallback( current );

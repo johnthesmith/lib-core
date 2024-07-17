@@ -47,17 +47,6 @@ ChainItemD1* ChartData::createLast
         deleteFirst();
     }
 
-    /* automaticaly rescale */
-    if( autoMinY && a < minY )
-    {
-        minY = a;
-    }
-
-    if( autoMaxY && a > maxY )
-    {
-        maxY = a;
-    }
-
     return result;
 }
 
@@ -74,7 +63,7 @@ ChainItemD1* ChartData::createLast
 
 
 /*
-    Return first element
+    Return maximum value
 */
 double ChartData::getMaxY()
 {
@@ -159,6 +148,14 @@ string ChartData::toString
     int aSize
 )
 {
+    double currentMinY = minY;
+    double currentMaxY = maxY;
+
+    if( autoMinY || autoMaxY )
+    {
+        calcMinMaxY( currentMinY, currentMaxY );
+    }
+
     stringstream result;
     if( aSize > 0 )
     {
@@ -189,7 +186,7 @@ string ChartData::toString
                 }
             }
 
-            switch( (int) norm( average, minY, maxY, 0.0, 8.0, true ) )
+            switch( (int) norm( average, currentMinY, currentMaxY, 0.0, 8.0, true ) )
             {
                 case 0: result << " "; break;
                 case 1: result << "▁"; break;
@@ -209,9 +206,9 @@ string ChartData::toString
         << " last:"
         << ( last == NULL ? 0.0 : last -> getValue() )
         << " min:"
-        << minY
+        << currentMinY
         << " max:"
-        << maxY
+        << currentMaxY
         << " count:"
         << getCount()
         ;

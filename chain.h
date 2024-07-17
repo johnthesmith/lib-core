@@ -166,7 +166,8 @@ class Chain : public Result
         */
         Chain* loopFront
         (
-            function <bool ( ChainItem* )>
+            function <bool ( ChainItem* )>,
+            ChainItem* = NULL
         );
 
 

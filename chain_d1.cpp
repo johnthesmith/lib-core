@@ -1,3 +1,5 @@
+#include <cmath>
+#include <iostream>
 #include "chain_d1.h"
 
 
@@ -126,7 +128,8 @@ ChainD1* ChainD1::loopBack
 */
 ChainD1* ChainD1::loopFront
 (
-    function <bool ( ChainItemD1* )> aCallback
+    function <bool ( ChainItemD1* )> aCallback,
+    ChainItem* aStart
 )
 {
     Chain::loopFront
@@ -137,7 +140,8 @@ ChainD1* ChainD1::loopFront
         )
         {
             return aCallback( ( ChainItemD1* ) aItem  );
-        }
+        },
+        aStart
     );
     return this;
 }
@@ -207,6 +211,121 @@ ChainD1* ChainD1::fromBuffer
     auto buffer = BufferD1::create() -> setMem( aBuffer, aSize );
     fromBuffer( buffer);
     buffer -> destroy();
+
+    return this;
+}
+
+
+
+/*
+    Return avg( Ni - Ni+1)
+    TODO Отладить и проверить для графика тиков
+*/
+double ChainD1::avgDelta()
+{
+    double result = 0.0;
+    auto count = getCount();
+
+    if( count > 1 )
+    {
+        double summ = 0.0;
+        double last = (( ChainItemD1* )getFirst()) -> getValue();
+        loopFront
+        (
+            [ &summ, &last ]
+            ( ChainItemD1* aItem )
+            {
+                auto current = aItem -> getValue();
+                summ += last - current;
+                last = current;
+                return false;
+            },
+            getFirst() -> getNext()
+        );
+        result = summ;// / ( count - 1 );
+    }
+    return result;
+}
+
+
+
+/*
+    Smoth algorithm on glider average
+*/
+ChainD1* ChainD1::smoth
+(
+    double aSmoth,
+    ChainD1* aDest
+)
+{
+    auto c = getCount();
+    auto smothCount = ( unsigned int )( aSmoth * c );
+
+    /* Check smoth count */
+    if( smothCount == 0 )
+    {
+        smothCount = 1;
+    }
+
+    /* Buffer */
+    auto buffer = BufferD1::create( c );
+    toBuffer( buffer );
+
+    for( unsigned int i = smothCount; i < c; i ++ )
+    {
+        double sum = 0;
+        unsigned int jn = 0;
+
+        for( unsigned int j = 0; j < smothCount; j ++ )
+        {
+            sum += buffer -> getValue( i - j );
+            jn ++;
+        }
+
+        /* Calc average and write last value  */
+        if( jn == smothCount )
+        {
+            aDest -> createLast( sum / jn );
+        }
+    }
+
+    buffer -> destroy();
+
+    return this;
+}
+
+
+
+
+/*
+    Calculate and return current minimum and maximum value
+*/
+ChainD1* ChainD1::calcMinMaxY
+(
+    double&aMin,
+    double&aMax
+)
+{
+    aMin = + INFINITY;
+    aMax = - INFINITY;
+
+    loopFront
+    (
+        [
+            &aMin,
+            &aMax
+        ]
+        (
+            ChainItem* item
+        )
+        {
+            auto itemD1 = (ChainItemD1*)item;
+            auto value = itemD1 -> getValue();
+            if( value < aMin ) aMin = value;
+            if( value > aMax ) aMax = value;
+            return false;
+        }
+    );
 
     return this;
 }
