@@ -143,4 +143,10 @@ class ChainD1 : public Chain
             double&aMin,
             double&aMax
         );
+
+
+        /*
+            Calculate delta between max and min values
+        */
+        double deltaMinMax();
 };

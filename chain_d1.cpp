@@ -329,3 +329,16 @@ ChainD1* ChainD1::calcMinMaxY
 
     return this;
 }
+
+
+
+/*
+    Calculate delta between max and min values
+*/
+double ChainD1::deltaMinMax()
+{
+    double minVal;
+    double maxVal;
+    calcMinMaxY( minVal, maxVal );
+    return maxVal - minVal;
+}
