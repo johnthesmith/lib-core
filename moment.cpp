@@ -1,6 +1,7 @@
 #include <time.h>
 #include <iostream>
 #include <sstream>
+#include <cstring>
 #include <ctime>
 #include <iomanip>
 
@@ -51,15 +52,10 @@ string Moment::toString()
 {
     time_t time = (long long ) get() / SECOND;
     auto mcs = get() % SECOND;
+    auto l = strlen( "yyyy-mm-dd hh:mm:ss.uuuuuu" );
 
-    char timeString[ size( "yyyy-mm-dd hh:mm:ss.uuuuuu" )];
-    strftime
-    (
-        data( timeString ),
-        size( timeString ),
-        "%F %T",
-        gmtime( &time )
-    );
+    char timeString[ l ];
+    strftime( timeString, l, "%F %T", gmtime( &time ));
 
     /* Return result */
     stringstream ss;
