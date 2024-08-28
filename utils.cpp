@@ -6,10 +6,10 @@
 #include <cstring>
 #include <regex>
 #include <dirent.h>
-
 #include <sys/stat.h>
-#include "utils.h"
 
+#include "utils.h"
+#include "math.h"
 
 
 using namespace std;
@@ -469,27 +469,41 @@ string toString
 
 
 /*
-    Counvert double to string
+    Convert double to string
 */
 string toString
 (
     /* Value for converting */
     double              aValue,
     unsigned short int  aPrecision,
-    DoubleFormat        aFormat
+    DoubleFormat        aFormat,
+    bool                aColor
 )
 {
     stringstream s;
 
+    if( aColor )
+    {
+        if( aValue > EPSILON_D ) s << INK_GREEN;
+        else if( aValue < - EPSILON_D ) s << INK_RED;
+        else s << INK_GREY;
+    }
+
     switch( aFormat )
     {
         default:
-        case DF_FIXED   : s << fixed; break;
+        case DF_FIXED   : s << fixed << setprecision( aPrecision )
+                            << setfill( '0' ); break;
         case DF_MIXED   : /* default */ break;
         case DF_SCIENT  : s << scientific; break;
     }
 
-    s << setprecision( aPrecision ) << aValue;
+    s << setprecision( aPrecision ) << abs( aValue );
+
+    if( aColor )
+    {
+        s << INK_DEFAULT;
+    }
 
     return s.str();
 }

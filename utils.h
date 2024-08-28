@@ -5,6 +5,8 @@
 #include <vector>
 #include <sys/stat.h>
 
+#include "console.h"
+
 using namespace std;
 
 
@@ -236,9 +238,13 @@ string toString
 string toString
 (
     /* Value for converting */
-    double,                     /* value */
-    unsigned short int = 6,     /* precision */
-    DoubleFormat = DF_FIXED     /* fixed Zero chars after point */
+    double,
+    /* precision */
+    unsigned short int = 6,
+    /* fixed Zero chars after point */
+    DoubleFormat = DF_FIXED,
+    /* color */
+    bool = false
 );
 
 
