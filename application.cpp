@@ -1,6 +1,10 @@
-#include <iostream>
-#include <cstring>
 #include "application.h"
+
+#include <cstring>
+#include <fstream>          /* lock */
+#include <unistd.h>         /* usleep */
+#include <iostream>
+
 #include "utils.h"
 
 
@@ -183,5 +187,48 @@ Mon* Application::getMon()
 Application* Application::onThreadAfter()
 {
     return this;
+}
+
+
+
+/*
+    Lock process and waiting resolve locker file from user
+*/
+string Application::lock
+(
+    string      file,
+    ParamList*  params
+)
+{
+    string result;
+
+    if( checkPath( getPath( file )))
+    {
+        /* Open lock stream */
+        ofstream f;
+        f.open( file );
+        if( f.is_open() )
+        {
+            f << params -> toString() << endl;
+            f.close();
+
+            /* Ожидание удаления файла */
+            while( fileExists( file ) )
+            {
+                usleep( 10000 );
+            }
+            result = RESULT_OK;
+        }
+        else
+        {
+            result = "file_create_error";
+        }
+    }
+    else
+    {
+        result = "path_create_error";
+    }
+
+    return result;
 }
 

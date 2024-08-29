@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 #include "text_align.h"
 
 
@@ -54,4 +55,34 @@ string strAlign
     string,
     TextAlign,
     int /* Length */
+);
+
+
+
+/*
+    Replace substring
+*/
+string replace
+(
+    /* Source string */
+    const string&,
+    /* Key */
+    const string&,
+    /* Value */
+    const string&
+);
+
+
+
+/*
+    Replace all substring
+*/
+string replace
+(
+    /* Source string */
+    const string&,
+    /* Keys */
+    const vector<string>&,
+    /* Values */
+    const vector<string>&
 );

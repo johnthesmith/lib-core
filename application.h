@@ -14,7 +14,6 @@ using namespace std;
 
 
 
-
 class Application : public Result
 {
     private:
@@ -126,4 +125,15 @@ class Application : public Result
             Return mon object
         */
         Mon* getMon();
+
+
+        /*
+            Lock process and waiting resolve locker file from user
+            https://github.com/johnthesmith/scraps/blob/main/ru/process_locking_for_debug.md
+        */
+        string lock
+        (
+            string      file,
+            ParamList*  params
+        );
 };

@@ -1,6 +1,7 @@
-#include <string>
-#include <cstring>
 #include "str.h"
+
+#include <cstring>
+#include <cmath>
 
 
 
@@ -66,4 +67,56 @@ string strAlign
         }
     }
     return aValue;
+}
+
+
+
+/*
+    Replace substring
+*/
+string replace
+(
+    const string& aStr,
+    const string& aFrom,
+    const string& aTo
+)
+{
+    string result = aStr;
+    size_t startPos = 0;
+
+    if( !aFrom.empty() )
+    {
+        while( (startPos = result.find(aFrom, startPos)) != string::npos )
+        {
+            result.replace( startPos, aFrom.length(), aTo );
+            startPos += ( aTo.length() > 0 ) ? aTo.length() : aFrom.length();
+        }
+    }
+
+    return result;
+}
+
+
+
+/*
+    Replace all substring
+*/
+string replace
+(
+    const string& aStr,
+    const vector<string>& aKeys,
+    const vector<string>& aValues
+)
+{
+    auto result = aStr;
+
+    size_t c = min( aKeys.size(), aValues.size() );
+    {
+        for( size_t i = 0; i < c; ++i )
+        {
+            result = replace( result, aKeys[i], aValues[i] );
+        }
+    }
+
+    return result;
 }
