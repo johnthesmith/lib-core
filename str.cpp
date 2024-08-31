@@ -86,10 +86,13 @@ string replace
 
     if( !aFrom.empty() )
     {
-        while( (startPos = result.find(aFrom, startPos)) != string::npos )
+        while
+        (
+            ( startPos = result.find( aFrom, startPos )) != string::npos
+        )
         {
             result.replace( startPos, aFrom.length(), aTo );
-            startPos += ( aTo.length() > 0 ) ? aTo.length() : aFrom.length();
+            startPos += aTo.length();
         }
     }
 

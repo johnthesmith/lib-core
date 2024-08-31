@@ -498,11 +498,51 @@ string toString
         case DF_SCIENT  : s << scientific; break;
     }
 
-    s << setprecision( aPrecision ) << abs( aValue );
+    s << setprecision( aPrecision );
 
     if( aColor )
     {
+        s << abs( aValue );
         s << INK_DEFAULT;
+    }
+    else
+    {
+        s << aValue;
+    }
+
+    return s.str();
+}
+
+
+
+/*
+    Convert integer to string
+*/
+string toString
+(
+    /* Value for converting */
+    long long int       aValue,
+    /* Color out true or false */
+    bool                aColor
+)
+{
+    stringstream s;
+
+    if( aColor )
+    {
+        if( aValue > 0 ) s << INK_GREEN;
+        else if( aValue < 0 ) s << INK_RED;
+        else s << INK_GREY;
+    }
+
+    if( aColor )
+    {
+        s << abs( aValue );
+        s << INK_DEFAULT;
+    }
+    else
+    {
+        s << aValue;
     }
 
     return s.str();

@@ -187,6 +187,7 @@ Payload* Payload::loop
     This method calls a user onLoop
 */
 Payload* Payload::internalLoop()
+
 {
     terminated  = false;
 
@@ -409,6 +410,7 @@ Payload* Payload::waitPause()
     {
         getLog()
         -> begin( "Thread pause waiting" )
+        -> prm( "id", id )
         -> lineEnd();
 
         while( state == THREAD_STATE_WAIT_PAUSE )

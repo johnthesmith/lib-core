@@ -196,8 +196,9 @@ Application* Application::onThreadAfter()
 */
 string Application::lock
 (
-    string      file,
-    ParamList*  params
+    string          file,
+    ParamList*      params,
+    LockTerminated  terminated
 )
 {
     string result;
@@ -213,9 +214,9 @@ string Application::lock
             f.close();
 
             /* Ожидание удаления файла */
-            while( fileExists( file ) )
+            while( fileExists( file ) && ( terminated == NULL || !terminated() ) )
             {
-                usleep( 10000 );
+                usleep( 100000 );
             }
             result = RESULT_OK;
         }

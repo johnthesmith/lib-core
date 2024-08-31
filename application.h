@@ -13,6 +13,9 @@
 using namespace std;
 
 
+/* Calback lyambda for Application::lock method */
+typedef function <bool ()> LockTerminated;
+
 
 class Application : public Result
 {
@@ -127,13 +130,18 @@ class Application : public Result
         Mon* getMon();
 
 
+
         /*
             Lock process and waiting resolve locker file from user
             https://github.com/johnthesmith/scraps/blob/main/ru/process_locking_for_debug.md
         */
         string lock
         (
-            string      file,
-            ParamList*  params
+            /* Lock file */
+            string,
+            /* Params */
+            ParamList*,
+            /* Callback terminated */
+            LockTerminated = NULL
         );
 };

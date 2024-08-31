@@ -233,7 +233,20 @@ string toString
 
 
 /*
-    Counvert double to string
+    Convert double to string
+*/
+string toString
+(
+    /* Value for converting */
+    long long int,
+    /* Color */
+    bool = false
+);
+
+
+
+/*
+    Convert double to string
 */
 string toString
 (
