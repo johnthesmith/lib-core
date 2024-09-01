@@ -7,8 +7,12 @@
     Overall functionality of users can be encapsulated in a child of this class.
 */
 
+
+
 /* Vanilla librarits */
 #include <thread>
+
+
 
 /* Local libraries */
 #include "result.h"
@@ -75,6 +79,7 @@ class Payload : public Result
         virtual ~Payload();
 
 
+
         /*
             Creator
         */
@@ -111,7 +116,8 @@ class Payload : public Result
         */
         Payload* run
         (
-            bool = false    /* True for run like thread */
+            /* True for run like thread */
+            bool = false
         );
 
 
@@ -121,7 +127,8 @@ class Payload : public Result
         */
         Payload* loop
         (
-            bool = false    /* True for run like thread */
+            /* True for run like thread */
+            bool = false
         );
 
 
@@ -256,5 +263,4 @@ class Payload : public Result
             Wait pause
         */
         Payload* waitPause();
-
 };
