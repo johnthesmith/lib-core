@@ -517,36 +517,36 @@ Log* Log::lineBegin
 
     switch( type )
     {
-        case lrDump:
-        case lrNone:
+        case LOG_DUMP:
+        case LOG_NONE:
             colorLine = INK_DEFAULT;
             charLine = "";
         break;
-        case lrBegin:
+        case LOG_BEGIN:
             colorLine = colorJob;
             charLine = ">";
         break;
-        case lrEnd:
+        case LOG_END:
             colorLine = colorJob;
             charLine = "<";
         break;
-        case lrWarning:
+        case LOG_WARNING:
             colorLine = colorWarning;
             charLine = "!";
         break;
-        case lrTrace:
+        case LOG_TRACE:
             colorLine = colorTrace;
             charLine = "~";
         break;
-        case lrDebug:
+        case LOG_DEBUG:
             colorLine = colorDebug;
             charLine = "#";
         break;
-        case lrInfo:
+        case LOG_INFO:
             colorLine = colorInfo;
             charLine = "i";
         break;
-        case lrError:
+        case LOG_ERROR:
             colorLine = colorError;
             charLine = "X";
         break;
@@ -578,10 +578,10 @@ Log* Log::lineBegin
 Log* Log::lineEnd()
 {
     /* Вывод строки */
-    if( enabled && typeLine != lrNone )
+    if( enabled && typeLine != LOG_NONE )
     {
         /* Close current line */
-        typeLine = lrNone;
+        typeLine = LOG_NONE;
 
         /* Draw enter */
         eol();
@@ -646,7 +646,7 @@ Log* Log::begin
     string message
 )
 {
-    lineBegin( lrBegin );
+    lineBegin( LOG_BEGIN );
 
     beginStack -> push( momentLineBegin );
 
@@ -678,7 +678,7 @@ Log* Log::end
         depth=0;
     }
 
-    lineBegin( lrEnd );
+    lineBegin( LOG_END );
     write( aMessage );
 
     long long momentBegin = beginStack -> top();
@@ -706,7 +706,7 @@ Log* Log::debug
     string a    /* Message */
 )
 {
-    lineBegin( lrDebug );
+    lineBegin( LOG_DEBUG );
     write( a );
     return this;
 }
@@ -725,7 +725,7 @@ Log* Log::trace
     string a    /* Message */
 )
 {
-    lineBegin( lrTrace );
+    lineBegin( LOG_TRACE );
     write( a );
     return this;
 }
@@ -744,7 +744,7 @@ Log* Log::info
 )
 {
     trapDump();
-    lineBegin( lrInfo );
+    lineBegin( LOG_INFO );
     write( a );
     return this;
 }
@@ -764,7 +764,7 @@ Log* Log::warning
 )
 {
     trapDump();
-    lineBegin( lrWarning );
+    lineBegin( LOG_WARNING );
     write( a );
     return this;
 }
@@ -784,7 +784,7 @@ Log* Log::error
 )
 {
     trapDump();
-    lineBegin( lrError );
+    lineBegin( LOG_ERROR );
     write( a );
     return this;
 }
@@ -1136,3 +1136,43 @@ Log* Log::trapDump()
 
 
 
+LogRecord Log::logRecordFromString
+(
+    string a
+)
+{
+    if( a == "NONE" )       return LOG_NONE;
+    if( a == "BEGIN" )      return LOG_BEGIN;
+    if( a == "END" )        return LOG_END;
+    if( a == "TRACE" )      return LOG_TRACE;
+    if( a == "DEBUG" )      return LOG_DEBUG;
+    if( a == "INFO" )       return LOG_INFO;
+    if( a == "ERROR" )      return LOG_ERROR;
+    if( a == "WARNING" )    return LOG_WARNING;
+    if( a == "DUMP" )       return LOG_DUMP;
+    return LOG_NONE;
+}
+
+
+
+Log* Log::record
+(
+    LogRecord aRecord,
+    string aMessage
+)
+{
+    switch( aRecord )
+    {
+        default:
+        case LOG_NONE       : break;
+        case LOG_DUMP       :break;
+        case LOG_BEGIN      : begin( aMessage ); break;
+        case LOG_END        : end( aMessage ); break;
+        case LOG_TRACE      : trace( aMessage ); break;
+        case LOG_DEBUG      : debug( aMessage ); break;
+        case LOG_INFO       : info( aMessage ); break;
+        case LOG_ERROR      : error( aMessage ); break;
+        case LOG_WARNING    : warning( aMessage ); break;
+    }
+    return this;
+}

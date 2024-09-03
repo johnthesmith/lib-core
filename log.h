@@ -15,15 +15,15 @@ using namespace std; /* для того что бы std:: не приходил�
 */
 enum LogRecord
 {
-    lrNone,
-    lrBegin,
-    lrEnd,
-    lrTrace,
-    lrDebug,
-    lrInfo,
-    lrError,
-    lrWarning,
-    lrDump
+    LOG_NONE,
+    LOG_BEGIN,
+    LOG_END,
+    LOG_TRACE,
+    LOG_DEBUG,
+    LOG_INFO,
+    LOG_ERROR,
+    LOG_WARNING,
+    LOG_DUMP
 };
 
 
@@ -42,7 +42,7 @@ class Log
 
         int                 depth           = 0;            /* глубина конструкций begin end */
         string              fileName        = "";           /* имя файла */
-        LogRecord           typeLine        = lrNone;
+        LogRecord           typeLine        = LOG_NONE;
         int                 tabSize         = 2;            /* Размер табулятора */
         char                tabChar         = ' ';          /* Символ табулятора */
 
@@ -474,4 +474,19 @@ class Log
             Trap dump
         */
         Log* trapDump();
+
+
+
+        static LogRecord logRecordFromString
+        (
+            string
+        );
+
+
+
+        Log* record
+        (
+            LogRecord,
+            string
+        );
 };
