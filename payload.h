@@ -53,7 +53,7 @@ class Payload : public Result
             Internal loop emplimentation
             This method calls a user onLoop
         */
-        Payload* internalLoop();
+        void internalLoop0();
 
         /*
             Set paused confirmation
@@ -263,4 +263,7 @@ class Payload : public Result
             Wait pause
         */
         Payload* waitPause();
+
+
+        void internalLoop1();
 };

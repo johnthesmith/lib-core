@@ -233,3 +233,66 @@ string Application::lock
     return result;
 }
 
+
+
+/*
+    Check update moment of the config file.
+    If file was updated, then the config object is rebuilding.
+*/
+Application* Application::checkConfigUpdate()
+{
+    string configFileName = getConfigFileName();
+    if( fileExists( configFileName ))
+    {
+        bool cfgUpdated = checkFileUpdate( configFileName, lastConfigUpdate );
+
+        if( cfgUpdated )
+        {
+            getLog()
+            -> trace( "Load config file" )
+            -> prm( "name", configFileName );
+
+            /* Load config and cli */
+            getConfig()
+            -> clear()
+            -> fromJsonFile( configFileName );
+
+            if( getConfig() -> isOk())
+            {
+                getConfig() -> resultTo( this );
+                getConfig() -> copyFrom( getCli() ) ;
+            }
+        }
+
+        configUpdated = configUpdated || cfgUpdated;
+    }
+    else
+    {
+        getConfig() -> setResult( "config_not_exists" );
+    }
+
+    return this;
+}
+
+
+
+/*
+    Return true if config was updated
+*/
+bool Application::getConfigUpdated()
+{
+    bool result = configUpdated;
+    configUpdated = false;
+    return result;
+}
+
+
+
+/*
+    Return the name of configuraion file
+*/
+string Application::getConfigFileName()
+{
+    return getCli() -> getString( "config", "./config.json" );
+}
+

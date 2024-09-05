@@ -21,11 +21,14 @@ class Application : public Result
 {
     private:
 
-        ParamList*      cli         = NULL;
-        ParamListFile*  config      = NULL;
-        Log*            log         = NULL;
-        LogManager*     logManager  = NULL;
-        Mon*            mon         = NULL;
+        ParamList*      cli                 = NULL;
+        ParamListFile*  config              = NULL;
+        Log*            log                 = NULL;
+        LogManager*     logManager          = NULL;
+        Mon*            mon                 = NULL;
+        bool            configUpdated       = false;
+        long int        lastConfigUpdate    = 0;
+
     public:
 
         /*
@@ -79,6 +82,12 @@ class Application : public Result
 
 
 
+        /*
+            Check update moment of the config file.
+            If file was updated, then the config object is rebuilding.
+        */
+        Application* checkConfigUpdate();
+
 
         /**********************************************************************
             Log operations
@@ -118,6 +127,13 @@ class Application : public Result
 
 
         /*
+            Return true if config wile was updated
+        */
+        bool getConfigUpdated();
+
+
+
+        /*
             Return log object
         */
         Log* getLog();
@@ -144,4 +160,12 @@ class Application : public Result
             /* Callback terminated */
             LockTerminated = NULL
         );
+
+
+
+        /*
+            Return the name of configuraion file
+        */
+        string getConfigFileName();
+
 };

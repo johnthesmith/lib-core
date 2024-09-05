@@ -159,7 +159,7 @@ Payload* Payload::loop
                     /* Log create and registration */
                     application -> createThreadLog( id );
                     /* Run loop */
-                    internalLoop();
+                    internalLoop0();
                     /* Destroy and nullate log */
                     application -> onThreadAfter();
                     application -> destroyThreadLog();
@@ -174,7 +174,7 @@ Payload* Payload::loop
     else
     {
         /* Run loop in the parent thread */
-        internalLoop();
+        internalLoop0();
     }
 
     return this;
@@ -186,11 +186,9 @@ Payload* Payload::loop
     Internal loop emplimentation
     This method calls a user onLoop
 */
-Payload* Payload::internalLoop()
-
+void Payload::internalLoop0()
 {
     terminated  = false;
-
     onLoopBefore();
 
     while( !terminated )
@@ -198,25 +196,32 @@ Payload* Payload::internalLoop()
         /* Confirm work mode */
         if( state == THREAD_STATE_WORK )
         {
-            onLoop();
+            internalLoop1();
         }
-
         /* Confirm pause processor */
         if( state == THREAD_STATE_WAIT_PAUSE )
         {
             state = THREAD_STATE_PAUSE;
             onPaused();
         }
-
         if( idling )
         {
             usleep( loopTimeoutMcs );
         }
     }
-
     onLoopAfter();
+}
 
-    return this;
+
+
+/*
+    Internal loop emplimentation
+    This method calls a user onLoop
+*/
+void Payload::internalLoop1()
+{
+exit(0);
+    onLoop();
 }
 
 
