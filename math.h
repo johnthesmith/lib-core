@@ -1,10 +1,13 @@
 #pragma once
 
+#include <string>
+
 /* Pi constant */
 static const double PI = 3.14159265358979323846;
 
 /* Minimal value  */
 static const double EPSILON_D = 1e-9;
+
 
 
 /*
@@ -13,8 +16,8 @@ static const double EPSILON_D = 1e-9;
 double norm
 (
     double,         /* Value */
-    double,         /* Minimam value will be 0.0 */
-    double,         /* Maximum value will be 1.0 */
+    double = 0.0,   /* Minimam value will be 0.0 */
+    double = 1.0,   /* Maximum value will be 1.0 */
     bool = false    /* Cut reusult form 0 to 1 for true */
 );
 
@@ -30,6 +33,19 @@ double norm
     bool = false    /* Cut reusult form 0 to 1 for true */
 );
 
+
+
+std::string valueToColor
+(
+    double aValue
+);
+
+
+
+std::string valueToChar
+(
+    double aVal
+);
 
 
 

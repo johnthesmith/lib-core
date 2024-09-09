@@ -146,6 +146,37 @@ Payload* Payload::loop
     bool aThread    /* True for run like thread */
 )
 {
+    /*
+        Internal loop emplimentation
+    */
+    auto doLoop = [ this ]()
+    {
+
+        terminated  = false;
+        onLoopBefore();
+
+        while( !terminated )
+        {
+            /* Confirm work mode */
+            if( state == THREAD_STATE_WORK )
+            {
+                internalLoop1();
+            }
+            /* Confirm pause processor */
+            if( state == THREAD_STATE_WAIT_PAUSE )
+            {
+                state = THREAD_STATE_PAUSE;
+                onPaused();
+            }
+            if( idling )
+            {
+                usleep( loopTimeoutMcs );
+            }
+        }
+        onLoopAfter();
+    };
+
+
     if( aThread )
     {
         /* Run loop in the personal thread if it does not early */
@@ -153,13 +184,13 @@ Payload* Payload::loop
         {
             threadObject = new thread
             (
-                [ this ]
+                [ this, doLoop ]
                 ()
                 {
                     /* Log create and registration */
                     application -> createThreadLog( id );
                     /* Run loop */
-                    internalLoop0();
+                    doLoop();
                     /* Destroy and nullate log */
                     application -> onThreadAfter();
                     application -> destroyThreadLog();
@@ -174,7 +205,7 @@ Payload* Payload::loop
     else
     {
         /* Run loop in the parent thread */
-        internalLoop0();
+        doLoop();
     }
 
     return this;
@@ -186,41 +217,8 @@ Payload* Payload::loop
     Internal loop emplimentation
     This method calls a user onLoop
 */
-void Payload::internalLoop0()
-{
-    terminated  = false;
-    onLoopBefore();
-
-    while( !terminated )
-    {
-        /* Confirm work mode */
-        if( state == THREAD_STATE_WORK )
-        {
-            internalLoop1();
-        }
-        /* Confirm pause processor */
-        if( state == THREAD_STATE_WAIT_PAUSE )
-        {
-            state = THREAD_STATE_PAUSE;
-            onPaused();
-        }
-        if( idling )
-        {
-            usleep( loopTimeoutMcs );
-        }
-    }
-    onLoopAfter();
-}
-
-
-
-/*
-    Internal loop emplimentation
-    This method calls a user onLoop
-*/
 void Payload::internalLoop1()
 {
-exit(0);
     onLoop();
 }
 

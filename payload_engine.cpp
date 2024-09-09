@@ -42,12 +42,32 @@ PayloadEngine* PayloadEngine::create
 
 
 
+/*
+    Payload loop before default even
+*/
+void PayloadEngine::onLoopBefore()
+{
+    getMon() -> now( Path{ "startMks" }, true );
+    getMon() -> now( Path{ "startMoment" }, false );
+    onEngineLoopBefore();
+}
+
 
 
 /*
     Payload loop before default even
 */
-void PayloadEngine::internalLoop1()
+void PayloadEngine::onEngineLoopBefore()
+{
+    /* Can be overrided in childrens */
+}
+
+
+
+/*
+    Payload loop before default even
+*/
+void PayloadEngine::onLoop()
 {
     getLog() -> trapOn() -> begin( "Loop" );
 
@@ -66,11 +86,14 @@ void PayloadEngine::internalLoop1()
     if( isOk() )
     {
         /* Check enabled */
-        auto enabled = getApplication() -> getConfig() -> getBool( "enabled", true );
+        auto enabled = getApplication()
+        -> getConfig()
+        -> getBool( Path{ "engine","enabled" }, true );
+
         getMon() -> setBool( Path{ "enabled" }, enabled );
         if( enabled )
         {
-            onLoop();
+            onEngineLoop();
         }
         else
         {
@@ -83,14 +106,14 @@ void PayloadEngine::internalLoop1()
     */
     auto code = getApplication()
     -> getConfig()
-    -> getObject( Path{ "teacher", "code", getCode() });
+    -> getObject( Path{ "engine", "teacher", "code", getCode() });
 
     if( code == NULL )
     {
         /* Read default result state action */
         code = getApplication()
         -> getConfig()
-        -> getObject( Path{ "teacher", "code", "*" });
+        -> getObject( Path{ "engine", "teacher", "code", "*" });
     }
 
     if( code != NULL )
@@ -128,3 +151,15 @@ void PayloadEngine::internalLoop1()
 
     getLog() -> end() -> trapOff();
 }
+
+
+
+
+/*
+    Payload engine loop default event
+*/
+void PayloadEngine::onEngineLoop()
+{
+    /* Can be overrided in childrens */
+}
+

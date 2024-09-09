@@ -50,12 +50,6 @@ class Payload : public Result
         ThreadState     state           = THREAD_STATE_PAUSE;
 
         /*
-            Internal loop emplimentation
-            This method calls a user onLoop
-        */
-        void internalLoop0();
-
-        /*
             Set paused confirmation
         */
         Payload* setPaused
@@ -265,5 +259,5 @@ class Payload : public Result
         Payload* waitPause();
 
 
-        void internalLoop1();
+        virtual void internalLoop1();
 };

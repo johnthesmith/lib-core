@@ -181,10 +181,18 @@ Mon* Mon::addDouble
 */
 Mon* Mon::now
 (
-    Path aPath
+    Path aPath,
+    bool aInt
 )
 {
-    list  -> getParamList() -> setString( aPath, Moment().setNow().toString() );
+    if( aInt )
+    {
+        list  -> getParamList() -> setInt( aPath, Moment().setNow().get() );
+    }
+    else
+    {
+        list  -> getParamList() -> setString( aPath, Moment().setNow().toString() );
+    }
     return this;
 }
 

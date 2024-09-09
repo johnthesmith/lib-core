@@ -138,7 +138,9 @@ class Mon : public Result
         */
         Mon* now
         (
-            Path
+            Path,
+            /* true = Integer, false = string */
+            bool = false
         );
 
 
