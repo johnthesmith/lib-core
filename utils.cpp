@@ -403,8 +403,8 @@ void toLowerCase
     string& a
 )
 {
-    auto i = a.length();
-    for( ; i >= 0; i-- )
+    auto c = a.length();
+    for( int i = 0; i < c; i ++ )
     {
         a[ i ] = tolower( a[ i ] );
     }

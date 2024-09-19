@@ -34,6 +34,16 @@ enum ThreadState
 
 
 
+/*
+    Convert ThreadState to string
+*/
+string stateToString
+(
+    ThreadState
+);
+
+
+
 class Payload : public Result
 {
     private:
@@ -260,4 +270,7 @@ class Payload : public Result
 
 
         virtual void internalLoop1();
+
+
+        ThreadState getState();
 };

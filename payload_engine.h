@@ -51,8 +51,13 @@ class PayloadEngine : public Payload
 
 
 
-        virtual void onEngineLoop();
-
+        virtual void onEngineLoop
+        (
+            /* true if application config updated */
+            const bool,
+            /* true for enabled service */
+            const bool
+        );
 
 
 
@@ -65,9 +70,9 @@ class PayloadEngine : public Payload
 
 
 
-         /*
-             EnginePayload loop before default even
-         */
-         virtual void onEngineLoopBefore();
+        /*
+            EnginePayload loop before default even
+        */
+        virtual void onEngineLoopBefore();
 
 };

@@ -13,6 +13,7 @@
 using namespace std;
 
 
+
 /*
     Constructor of paylod
 */
@@ -151,7 +152,6 @@ Payload* Payload::loop
     */
     auto doLoop = [ this ]()
     {
-
         terminated  = false;
         onLoopBefore();
 
@@ -162,13 +162,15 @@ Payload* Payload::loop
             {
                 internalLoop1();
             }
+
             /* Confirm pause processor */
             if( state == THREAD_STATE_WAIT_PAUSE )
             {
                 state = THREAD_STATE_PAUSE;
                 onPaused();
             }
-            if( idling )
+
+            if( idling && loopTimeoutMcs != 0 )
             {
                 usleep( loopTimeoutMcs );
             }
@@ -196,10 +198,6 @@ Payload* Payload::loop
                     application -> destroyThreadLog();
                 }
             );
-        }
-        else
-        {
-            application -> getLog() -> warning( "thread already runing" );
         }
     }
     else
@@ -424,4 +422,31 @@ Payload* Payload::waitPause()
         getLog() -> end() -> lineEnd();
     }
     return this;
+}
+
+
+
+ThreadState Payload::getState()
+{
+    return state;
+}
+
+
+
+
+/*
+    Convert ThreadState to string
+*/
+string stateToString
+(
+    ThreadState a
+)
+{
+    switch( a )
+    {
+        case THREAD_STATE_WAIT_PAUSE: return "WAIT_PAUSE";
+        case THREAD_STATE_PAUSE: return "PAUSE";
+        case THREAD_STATE_WORK: return "WORK";
+        default: return "UNKNOWN";
+    }
 }

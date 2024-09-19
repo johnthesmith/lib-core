@@ -71,13 +71,15 @@ void PayloadEngine::onLoop()
 {
     getLog() -> trapOn() -> begin( "Loop" );
 
+    /* Begin of monitoring */
     getMon()
-    -> interval( Path{ "uptime" }, Path{ "currentMks" }, Path{ "startMks" })
-    -> startTimer( Path{ "loop", "moment" })
+    -> startTimer( Path{ "momentMcs" })
+    -> interval( Path{ "uptime" }, Path{ "momentMcs" }, Path{ "startMks" })
+    -> addInt( Path{ "count" })
     ;
 
     /* Check local application config */
-    getApplication()
+    bool configUpdated = getApplication()
     -> checkConfigUpdate()
     -> getConfigUpdated();
 
@@ -88,17 +90,14 @@ void PayloadEngine::onLoop()
         /* Check enabled */
         auto enabled = getApplication()
         -> getConfig()
-        -> getBool( Path{ "engine","enabled" }, true );
+        -> getBool( Path{ "engine", "enabled" }, true );
 
         getMon() -> setBool( Path{ "enabled" }, enabled );
-        if( enabled )
-        {
-            onEngineLoop();
-        }
-        else
+        if( !enabled )
         {
             setCode( "disabled" );
         }
+        onEngineLoop( configUpdated, enabled );
     }
 
     /*
@@ -147,18 +146,26 @@ void PayloadEngine::onLoop()
     }
 
     /* Final monitoring */
-    getMon() -> setString( Path{ "Result" }, getCode() )-> flush();
+    getMon() -> setString( Path{ "Result" }, getCode() ) -> flush();
 
-    getLog() -> end() -> trapOff();
+    getLog()
+    -> end()
+    -> trapOff()
+    ;
 }
-
 
 
 
 /*
     Payload engine loop default event
 */
-void PayloadEngine::onEngineLoop()
+void PayloadEngine::onEngineLoop
+(
+    /* true if application config updated */
+    const bool,
+    /* true for enabled service */
+    const bool
+)
 {
     /* Can be overrided in childrens */
 }
