@@ -394,8 +394,8 @@ Payload* Payload::resume()
 {
     if( state == THREAD_STATE_PAUSE )
     {
-        state = THREAD_STATE_WORK;
         onResume();
+        state = THREAD_STATE_WORK;
     }
     return this;
 }
