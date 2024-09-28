@@ -16,9 +16,14 @@ using namespace std;
 
 
 
+
 class PayloadEngine : public Payload
 {
     private:
+
+        /* Loop frames per second */
+        double          fps             = 0;
+
     public:
 
         /*
@@ -75,4 +80,7 @@ class PayloadEngine : public Payload
         */
         virtual void onEngineLoopBefore();
 
+
+
+        double getFps();
 };

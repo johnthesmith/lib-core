@@ -1,5 +1,6 @@
 /* Local libraries */
 #include "payload_engine.h"
+#include "moment.h"
 
 
 
@@ -69,12 +70,16 @@ void PayloadEngine::onEngineLoopBefore()
 */
 void PayloadEngine::onLoop()
 {
+    auto begin = now();
+
     getLog() -> trapOn() -> begin( "Loop" );
+
 
     /* Begin of monitoring */
     getMon()
     -> startTimer( Path{ "momentMcs" })
     -> interval( Path{ "uptime" }, Path{ "momentMcs" }, Path{ "startMks" })
+    -> setDouble( Path{ "fps" }, getFps() )
     -> addInt( Path{ "count" })
     ;
 
@@ -152,6 +157,10 @@ void PayloadEngine::onLoop()
     -> end()
     -> trapOff()
     ;
+
+    auto end = now();
+
+    fps = SECOND / ( end - begin );
 }
 
 
@@ -170,3 +179,9 @@ void PayloadEngine::onEngineLoop
     /* Can be overrided in childrens */
 }
 
+
+
+double PayloadEngine::getFps()
+{
+    return fps;
+}

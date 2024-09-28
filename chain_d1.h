@@ -124,6 +124,14 @@ class ChainD1 : public Chain
 
 
 
+
+        /*
+            Return avg
+        */
+        double avg();
+
+
+
         /*
             Smoth the chain values with glided average
         */

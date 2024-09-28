@@ -250,6 +250,32 @@ double ChainD1::avgDelta()
 
 
 /*
+    Return avg
+*/
+double ChainD1::avg()
+{
+    double result = 0.0;
+    auto count = getCount();
+    if( count > 1 )
+    {
+        double summ = 0.0;
+        loopFront
+        (
+            [ &summ ]
+            ( ChainItemD1* aItem )
+            {
+                summ += aItem -> getValue();
+                return false;
+            }
+        );
+        result = summ / count;
+    }
+    return result;
+}
+
+
+
+/*
     Smoth algorithm on glider average
 */
 ChainD1* ChainD1::smoth
