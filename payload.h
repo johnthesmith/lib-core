@@ -27,9 +27,9 @@ using namespace std;
 
 enum ThreadState
 {
-    THREAD_STATE_WAIT_PAUSE,
-    THREAD_STATE_PAUSE,
-    THREAD_STATE_WORK
+    STATE_WAIT_STOP,
+    STATE_STOP,
+    STATE_LOOP
 };
 
 
@@ -51,13 +51,13 @@ class Payload : public Result
         /* Application object*/
         Application*    application     = NULL;
         thread*         threadObject    = NULL;
-        bool            terminated      = false;
+
 
         /* States */
         unsigned int    loopTimeoutMcs  = 0;
         bool            idling          = true;
         string          id              = "";
-        ThreadState     state           = THREAD_STATE_PAUSE;
+        ThreadState     state           = STATE_STOP;
 
         /*
             Set paused confirmation
@@ -101,6 +101,102 @@ class Payload : public Result
 
 
 
+
+        /******************************************************************************
+            Control actions
+        */
+
+        /*
+            Main payload loop start
+        */
+        Payload* start
+        (
+            /* True for run like thread */
+            bool = false
+        );
+
+
+
+        /*
+            Set terminate flag and stop the thread if exists
+        */
+        Payload* stop();
+
+
+
+
+        /*
+            Wait pause
+        */
+        Payload* waitStop();
+
+
+
+
+        /******************************************************************************
+            Events
+        */
+
+
+
+        /*
+            User emplementaion
+            This method must be overriden
+        */
+        virtual void onLoop();
+
+
+
+        /*
+            Payload loop before default even
+        */
+        virtual void onStartBefore();
+
+
+
+        /*
+            Payload loop after default event
+        */
+        virtual void onStartAfter();
+
+
+
+        /*
+            On stop before event
+        */
+        virtual void onStopBefore();
+
+
+
+        /*
+            On stop event
+        */
+        virtual void onStopAfter();
+
+
+
+
+        /******************************************************************************
+            Setters and getters
+        */
+
+        /*
+            Returen applicaiton pointer
+        */
+        virtual Application* getApplication();
+
+
+        /*
+            Set payload id
+        */
+        Payload* setId
+        (
+            string
+        );
+
+
+
+
         /*
             Get scene value
         */
@@ -112,35 +208,6 @@ class Payload : public Result
             Get scene value
         */
         Mon* getMon();
-
-
-
-        /*
-            Run payload
-        */
-        Payload* run
-        (
-            /* True for run like thread */
-            bool = false
-        );
-
-
-
-        /*
-            Main payload loop
-        */
-        Payload* loop
-        (
-            /* True for run like thread */
-            bool = false
-        );
-
-
-
-        /*
-            Set terminate flag
-        */
-        Payload* terminate();
 
 
 
@@ -173,104 +240,12 @@ class Payload : public Result
 
 
 
-        /******************************************************************************
-            Events
-        */
-
-        /*
-            User emplementaion
-            This method must be overriden
-        */
-        virtual void onLoop();
-
-
-
-        /*
-            Payload loop before default even
-        */
-        virtual void onLoopBefore();
-
-
-
-        /*
-            Payload loop after default event
-        */
-        virtual void onLoopAfter();
-
-
-
-        /*
-            User emplementaion
-            This method must be overriden
-        */
-        virtual void onRun();
-
-
-
-        /*
-            On pause event
-        */
-        virtual void onPause();
-
-
-
-        /*
-            On pause event when process paused
-        */
-        virtual void onPaused();
-
-
-
-        /*
-            On resume event
-        */
-        virtual void onResume();
-
-
-
-
-        /******************************************************************************
-            Setters and getters
-        */
-
-        /*
-            Returen applicaiton pointer
-        */
-        virtual Application* getApplication();
-
-
-        /*
-            Set payload id
-        */
-        Payload* setId
-        (
-            string
-        );
-
-
-
-        /*
-            Set order for pause
-        */
-        Payload* pause();
-
-
-
-        /*
-            Continue process after pause
-        */
-        Payload* resume();
-
-
-
-        /*
-            Wait pause
-        */
-        Payload* waitPause();
-
-
         virtual void internalLoop1();
 
 
+
+        /*
+            Return thread state
+        */
         ThreadState getState();
 };

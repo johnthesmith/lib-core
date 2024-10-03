@@ -154,3 +154,44 @@ ParamList* Result::getDetails()
 {
     return details;
 }
+
+
+
+/**********************************************************************
+    Limb synchronization
+*/
+
+
+
+/*
+    Lock Limb for operations with layers
+*/
+bool Result::lock
+(
+    bool aSkip
+)
+{
+    /* Let default result */
+    bool result = true;
+    if( aSkip )
+    {
+        result = sync.try_lock();
+    }
+    else
+    {
+        sync.lock();
+    }
+    return result;
+}
+
+
+
+/*
+    Unlock Limb after lock method
+*/
+Result* Result::unlock()
+{
+    sync.unlock();
+    return this;
+}
+

@@ -3,6 +3,8 @@
 
 
 #include <string>
+#include <mutex>    /* For net sinchronization */
+
 using namespace std;
 
 
@@ -25,6 +27,9 @@ class Result
         string      message     = "";
         string      code        = RESULT_OK;
         ParamList*  details     = NULL;
+
+        /* Synchronization mutex */
+        recursive_mutex sync;
 
     public:
 
@@ -134,4 +139,25 @@ class Result
             Details return
         */
         ParamList* getDetails();
+
+
+
+        /**********************************************************************
+            Synchronization
+        */
+
+        /*
+            Lock Result for operations
+        */
+        bool lock
+        (
+            bool = false /* Skip this action for locked mutex */
+        );
+
+
+
+        /*
+            Unlock Result for operations
+        */
+        Result* unlock();
 };

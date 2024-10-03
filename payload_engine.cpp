@@ -72,7 +72,10 @@ void PayloadEngine::onLoop()
 {
     auto begin = now();
 
-    getLog() -> trapOn() -> begin( "Loop" );
+    getLog()
+    -> trapOn()
+    -> begin( "Loop" )
+    -> lineEnd();
 
 
     /* Begin of monitoring */
@@ -134,7 +137,7 @@ void PayloadEngine::onLoop()
         /* Exit form payload */
         if( code -> getBool( "exit", false ))
         {
-            terminate();
+            stop();
         }
 
         /* Sleep timeout */
@@ -147,7 +150,7 @@ void PayloadEngine::onLoop()
     else
     {
         getLog() -> error( "unknown_action" ) -> prm( "code", getCode() );
-        terminate();
+        stop();
     }
 
     /* Final monitoring */

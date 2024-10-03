@@ -35,10 +35,9 @@ Payload::~Payload()
 {
     if( threadObject != NULL )
     {
-        pause();
-        terminate();
-        threadObject -> join();
-        delete threadObject;
+        getLog() -> trace( "Destroying payload thread" ) -> prm( "id", id );
+        stop();
+        waitStop();
     }
     getLog() -> trace( "Destroy payload" );
 }
@@ -68,81 +67,17 @@ void Payload::destroy()
 
 
 
-/*
-    Get application log or personal payloads log if exists
+
+/******************************************************************************
+    Control actions
 */
-Log* Payload::getLog()
-{
-    return application -> getLog();
-}
-
-
-
-/*
-    Get application monitor object
-*/
-Mon* Payload::getMon()
-{
-    return application -> getMon();
-}
-
-
-
-/*
-    Get application object
-*/
-Application* Payload::getApplication()
-{
-    return application;
-}
-
-
-
-/*
-    Run payload
-*/
-Payload* Payload::run
-(
-    bool aThread    /* True for run like thread */
-)
-{
-    if( aThread )
-    {
-        /* Run loop in the personal thread if it does not early */
-        if( threadObject == NULL )
-        {
-            threadObject = new thread
-            (
-                [ this ]
-                ()
-                {
-                    /* Log create and registration */
-                    application -> createThreadLog( id );
-                    /* Run work */
-                    onRun();
-                    application -> onThreadAfter();
-                    application -> destroyThreadLog();
-                }
-            );
-        }
-        else
-        {
-            application -> getLog() -> warning( "thread already runing" );
-        }
-    }
-    else
-    {
-        onRun();
-    }
-    return this;
-}
 
 
 
 /*
     Mail loop
 */
-Payload* Payload::loop
+Payload* Payload::start
 (
     bool aThread    /* True for run like thread */
 )
@@ -152,62 +87,107 @@ Payload* Payload::loop
     */
     auto doLoop = [ this ]()
     {
-        terminated  = false;
-        onLoopBefore();
-
-        while( !terminated )
+        state = STATE_LOOP;
+        onStartBefore();
+        while( state == STATE_LOOP )
         {
-            /* Confirm work mode */
-            if( state == THREAD_STATE_WORK )
-            {
-                internalLoop1();
-            }
-
-            /* Confirm pause processor */
-            if( state == THREAD_STATE_WAIT_PAUSE )
-            {
-                state = THREAD_STATE_PAUSE;
-                onPaused();
-            }
-
+            internalLoop1();
             if( idling && loopTimeoutMcs != 0 )
             {
                 usleep( loopTimeoutMcs );
             }
         }
-        onLoopAfter();
+        onStopAfter();
+        state = STATE_STOP;
     };
 
 
-    if( aThread )
+    if( lock( true ))
     {
-        /* Run loop in the personal thread if it does not early */
-        if( threadObject == NULL )
+        if( aThread )
         {
-            threadObject = new thread
-            (
-                [ this, doLoop ]
-                ()
-                {
-                    /* Log create and registration */
-                    application -> createThreadLog( id );
-                    /* Run loop */
-                    doLoop();
-                    /* Destroy and nullate log */
-                    application -> onThreadAfter();
-                    application -> destroyThreadLog();
-                }
-            );
+            /* Run loop in the personal thread if it does not early */
+            if( threadObject == NULL )
+            {
+                threadObject = new thread
+                (
+                    [ this, doLoop ]
+                    ()
+                    {
+                        /* Log create and registration */
+                        application -> createThreadLog( id );
+                        /* Run loop */
+                        doLoop();
+                        /* Destroy and nullate log */
+                        application -> onThreadAfter();
+                        application -> destroyThreadLog();
+                    }
+                );
+                onStartAfter();
+            }
         }
-    }
-    else
-    {
-        /* Run loop in the parent thread */
-        doLoop();
+        else
+        {
+            /* Run loop in the parent thread */
+            doLoop();
+        }
+
+        unlock();
     }
 
     return this;
 }
+
+
+
+/*
+    Send stop state for thread
+*/
+Payload* Payload::stop()
+{
+    if( state == STATE_LOOP )
+    {
+        state = STATE_WAIT_STOP;
+        onStopBefore();
+    }
+    return this;
+}
+
+
+
+
+/*
+    Wait stop thread
+*/
+Payload* Payload::waitStop()
+{
+    if( lock( true ))
+    {
+        if( threadObject != NULL && state == STATE_WAIT_STOP )
+        {
+            getLog()
+            -> begin( "Thread stop waiting" )
+            -> prm( "id", id )
+            -> lineEnd();
+
+            while( state == STATE_WAIT_STOP )
+            {
+                usleep( 1000 );
+            };
+
+            threadObject -> join();
+
+            delete threadObject;
+            threadObject = NULL;
+
+            getLog() -> end() -> lineEnd();
+        }
+        unlock();
+    }
+    return this;
+}
+
+
 
 
 
@@ -220,16 +200,6 @@ void Payload::internalLoop1()
     onLoop();
 }
 
-
-
-/*
-    Set terminate flag
-*/
-Payload* Payload::terminate()
-{
-    terminated = true;
-    return this;
-}
 
 
 
@@ -291,7 +261,7 @@ void Payload::onLoop()
 /*
     Payload loop before default even
 */
-void Payload::onLoopBefore()
+void Payload::onStartBefore()
 {
     getLog() -> trace( "Payload loop before default event" );
 }
@@ -301,7 +271,7 @@ void Payload::onLoopBefore()
 /*
     Payload loop after default event
 */
-void Payload::onLoopAfter()
+void Payload::onStartAfter()
 {
     getLog() -> trace( "Payload loop after default event" );
 }
@@ -309,21 +279,11 @@ void Payload::onLoopAfter()
 
 
 /*
-    On Run event
+    On stop before event
 */
-void Payload::onRun()
+void Payload::onStopBefore()
 {
-    getLog() -> trace( "Run" );
-}
-
-
-
-/*
-    On pause event
-*/
-void Payload::onPause()
-{
-    getLog() -> trace( "Process pause begin" );
+    getLog() -> trace( "Process stopping begin" );
 }
 
 
@@ -331,26 +291,48 @@ void Payload::onPause()
 /*
     On pause event when process paused
 */
-void Payload::onPaused()
+void Payload::onStopAfter()
 {
-    getLog() -> trace( "Process paused" );
+    getLog() -> trace( "Process stoped" );
 }
 
-
-
-/*
-    On resume event
-*/
-void Payload::onResume()
-{
-    getLog() -> trace( "Process resume" );
-}
 
 
 
 /******************************************************************************
     Setters and getters
 */
+
+
+
+/*
+    Get application log or personal payloads log if exists
+*/
+Log* Payload::getLog()
+{
+    return application -> getLog();
+}
+
+
+
+/*
+    Get application monitor object
+*/
+Mon* Payload::getMon()
+{
+    return application -> getMon();
+}
+
+
+
+/*
+    Get application object
+*/
+Application* Payload::getApplication()
+{
+    return application;
+}
+
 
 
 /*
@@ -362,65 +344,6 @@ Payload* Payload::setId
 )
 {
     id = aId;
-    return this;
-}
-
-
-
-/******************************************************************************
-    Control
-*/
-
-
-/*
-    Set pause
-*/
-Payload* Payload::pause()
-{
-    if( state == THREAD_STATE_WORK )
-    {
-        state = THREAD_STATE_WAIT_PAUSE;
-        onPause();
-    }
-    return this;
-}
-
-
-
-/*
-    Continue process after pause
-*/
-Payload* Payload::resume()
-{
-    if( state == THREAD_STATE_PAUSE )
-    {
-        onResume();
-        state = THREAD_STATE_WORK;
-    }
-    return this;
-}
-
-
-
-/*
-    Wait pause
-*/
-Payload* Payload::waitPause()
-{
-    if( state == THREAD_STATE_WAIT_PAUSE )
-    {
-        getLog()
-        -> begin( "Thread pause waiting" )
-        -> prm( "id", id )
-        -> lineEnd();
-
-        while( state == THREAD_STATE_WAIT_PAUSE )
-        {
-            usleep( 1000 );
-        };
-
-        getLog() -> end() -> lineEnd();
-    }
     return this;
 }
 
@@ -444,9 +367,9 @@ string stateToString
 {
     switch( a )
     {
-        case THREAD_STATE_WAIT_PAUSE: return "WAIT_PAUSE";
-        case THREAD_STATE_PAUSE: return "PAUSE";
-        case THREAD_STATE_WORK: return "WORK";
+        case STATE_WAIT_STOP: return "WAIT_STOP";
+        case STATE_STOP: return "STOP";
+        case STATE_LOOP: return "LOOP";
         default: return "UNKNOWN";
     }
 }
