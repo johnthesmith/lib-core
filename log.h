@@ -477,6 +477,25 @@ class Log
 
 
 
+        /*
+            Set log trap
+        */
+        Log* setTrapEnabled
+        (
+            bool
+        );
+
+
+
+        /*
+            Return trap enabled flag
+        */
+        bool getTrapEnabled();
+
+
+
+        /*
+        */
         static LogRecord logRecordFromString
         (
             string

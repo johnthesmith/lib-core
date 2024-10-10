@@ -75,7 +75,10 @@ class Payload : public Result
         */
         Payload
         (
-            Application*
+            /* Application object */
+            Application*,
+            /* Id of payload */
+            string
         );
 
 
@@ -89,7 +92,8 @@ class Payload : public Result
         */
         static Payload* create
         (
-            Application*
+            Application*,
+            string
         );
 
 
@@ -194,6 +198,12 @@ class Payload : public Result
             string
         );
 
+
+
+        /*
+            Return the id of payload
+        */
+        string getId();
 
 
 

@@ -13,9 +13,10 @@ using namespace std;
 */
 PayloadEngine::PayloadEngine
 (
-    Application* application
+    Application* application,
+    string aId
 )
-    : Payload( application ) // Вызов конструктора базового класса
+    : Payload( application, aId ) // Вызов конструктора базового класса
 {
 }
 
@@ -35,10 +36,11 @@ PayloadEngine::~PayloadEngine()
 */
 PayloadEngine* PayloadEngine::create
 (
-    Application* aApplication
+    Application* aApplication,
+    string aId
 )
 {
-    return new PayloadEngine( aApplication );
+    return new PayloadEngine( aApplication, aId );
 }
 
 
@@ -46,11 +48,11 @@ PayloadEngine* PayloadEngine::create
 /*
     Payload loop before default even
 */
-void PayloadEngine::onLoopBefore()
+void PayloadEngine::onStartBefore()
 {
     getMon() -> now( Path{ "startMks" }, true );
     getMon() -> now( Path{ "startMoment" }, false );
-    onEngineLoopBefore();
+    onEngineStartBefore();
 }
 
 
@@ -58,7 +60,7 @@ void PayloadEngine::onLoopBefore()
 /*
     Payload loop before default even
 */
-void PayloadEngine::onEngineLoopBefore()
+void PayloadEngine::onEngineStartBefore()
 {
     /* Can be overrided in childrens */
 }
@@ -70,8 +72,6 @@ void PayloadEngine::onEngineLoopBefore()
 */
 void PayloadEngine::onLoop()
 {
-    auto begin = now();
-
     getLog()
     -> trapOn()
     -> begin( "Loop" )
@@ -95,16 +95,28 @@ void PayloadEngine::onLoop()
 
     if( isOk() )
     {
+        if( configUpdated )
+        {
+            getLog() -> setTrapEnabled
+            (
+                getApplication()
+                -> getConfig()
+                -> getBool( Path{ "engine", "trap" }, true )
+            );
+        }
+
         /* Check enabled */
         auto enabled = getApplication()
         -> getConfig()
         -> getBool( Path{ "engine", "enabled" }, true );
 
         getMon() -> setBool( Path{ "enabled" }, enabled );
+
         if( !enabled )
         {
             setCode( "disabled" );
         }
+
         onEngineLoop( configUpdated, enabled );
     }
 
@@ -113,14 +125,14 @@ void PayloadEngine::onLoop()
     */
     auto code = getApplication()
     -> getConfig()
-    -> getObject( Path{ "engine", "teacher", "code", getCode() });
+    -> getObject( Path{ "engine", getId(), "code", getCode() });
 
     if( code == NULL )
     {
         /* Read default result state action */
         code = getApplication()
         -> getConfig()
-        -> getObject( Path{ "engine", "teacher", "code", "*" });
+        -> getObject( Path{ "engine", getId(), "code", "*" });
     }
 
     if( code != NULL )
@@ -153,6 +165,7 @@ void PayloadEngine::onLoop()
         stop();
     }
 
+
     /* Final monitoring */
     getMon() -> setString( Path{ "Result" }, getCode() ) -> flush();
 
@@ -161,9 +174,15 @@ void PayloadEngine::onLoop()
     -> trapOff()
     ;
 
-    auto end = now();
+    /* fps processing */
+    auto current = now();
 
-    fps = SECOND / ( end - begin );
+    if( fpsLast != 0 )
+    {
+        fps = SECOND / (double)( current - fpsLast );
+    }
+
+    fpsLast = current;
 }
 
 

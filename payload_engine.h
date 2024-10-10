@@ -23,6 +23,7 @@ class PayloadEngine : public Payload
 
         /* Loop frames per second */
         double          fps             = 0;
+        long long       fpsLast         = 0;
 
     public:
 
@@ -31,7 +32,8 @@ class PayloadEngine : public Payload
         */
         PayloadEngine
         (
-            Application*
+            Application*,
+            string
         );
 
 
@@ -45,7 +47,8 @@ class PayloadEngine : public Payload
         */
         static PayloadEngine* create
         (
-            Application*
+            Application*,
+            string
         );
 
 
@@ -71,14 +74,14 @@ class PayloadEngine : public Payload
             Does not recoomended for using.
             Use the onEngineLoopBefore
         */
-        virtual void onLoopBefore();
+        virtual void onStartBefore();
 
 
 
         /*
             EnginePayload loop before default even
         */
-        virtual void onEngineLoopBefore();
+        virtual void onEngineStartBefore();
 
 
 

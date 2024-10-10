@@ -19,10 +19,12 @@ using namespace std;
 */
 Payload::Payload
 (
-    Application* aApplication
+    Application* aApplication,
+    string aId
 )
 {
     application = aApplication;
+    setId( aId );
     getLog() -> trace( "Create payload" );
 }
 
@@ -49,10 +51,11 @@ Payload::~Payload()
 */
 Payload* Payload::create
 (
-    Application* aApplication
+    Application* aApplication,
+    string aId
 )
 {
-    return new Payload( aApplication );
+    return new Payload( aApplication, aId );
 }
 
 
@@ -87,7 +90,6 @@ Payload* Payload::start
     */
     auto doLoop = [ this ]()
     {
-        state = STATE_LOOP;
         onStartBefore();
         while( state == STATE_LOOP )
         {
@@ -109,13 +111,14 @@ Payload* Payload::start
             /* Run loop in the personal thread if it does not early */
             if( threadObject == NULL )
             {
+                state = STATE_LOOP;
                 threadObject = new thread
                 (
                     [ this, doLoop ]
                     ()
                     {
                         /* Log create and registration */
-                        application -> createThreadLog( id );
+                        application -> createThreadLog( getId() );
                         /* Run loop */
                         doLoop();
                         /* Destroy and nullate log */
@@ -129,6 +132,7 @@ Payload* Payload::start
         else
         {
             /* Run loop in the parent thread */
+            state = STATE_LOOP;
             doLoop();
         }
 
@@ -163,25 +167,29 @@ Payload* Payload::waitStop()
 {
     if( lock( true ))
     {
-        if( threadObject != NULL && state == STATE_WAIT_STOP )
+        if( threadObject != NULL )
         {
+            stop();
+
             getLog()
             -> begin( "Thread stop waiting" )
-            -> prm( "id", id )
+            -> prm( "id", getId() )
             -> lineEnd();
 
             while( state == STATE_WAIT_STOP )
             {
                 usleep( 1000 );
             };
-
             threadObject -> join();
+
+            getLog()
+            -> end()
+            -> lineEnd();
 
             delete threadObject;
             threadObject = NULL;
-
-            getLog() -> end() -> lineEnd();
         }
+
         unlock();
     }
     return this;
@@ -346,6 +354,17 @@ Payload* Payload::setId
     id = aId;
     return this;
 }
+
+
+
+/*
+    Return the id of payload
+*/
+string Payload::getId()
+{
+    return id;
+}
+
 
 
 

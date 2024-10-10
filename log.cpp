@@ -681,13 +681,24 @@ Log* Log::end
     lineBegin( LOG_END );
     write( aMessage );
 
-    long long momentBegin = beginStack -> top();
-    beginStack -> pop();
-    long long delta = momentLineBegin - momentBegin;
-    pushColor();
-    setColor( colorLabel );
-    value( delta );
-    popColor();
+    if( beginStack -> size() > 0 )
+    {
+        long long momentBegin = beginStack -> top();
+        beginStack -> pop();
+        long long delta = momentLineBegin - momentBegin;
+        pushColor();
+        setColor( colorLabel );
+        value( delta );
+        popColor();
+    }
+    else
+    {
+        pushColor();
+        setColor( colorError );
+        text( "Log heracly error" );
+        eol();
+        popColor();
+    }
 
     return this;
 }
@@ -1132,6 +1143,30 @@ Log* Log::trapDump()
         trapBuffer.clear();
     }
     return this;
+}
+
+
+
+/*
+    Set log trap
+*/
+Log* Log::setTrapEnabled
+(
+    bool a
+)
+{
+    trapEnabled = a;
+    return this;
+}
+
+
+
+/*
+    Return trap enabled flag
+*/
+bool Log::getTrapEnabled()
+{
+    return trapEnabled;
 }
 
 
