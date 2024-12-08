@@ -160,4 +160,12 @@ class Result
             Unlock Result for operations
         */
         Result* unlock();
+
+
+
+        /*
+            Return true for locked
+        */
+        bool isLock();
+
 };

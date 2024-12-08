@@ -1,4 +1,6 @@
 /* Default libraries */
+
+#include <sys/syscall.h>
 #include <iostream>
 #include <unistd.h>
 #include <stdio.h> /* sdf */
@@ -78,7 +80,7 @@ void Payload::destroy()
 
 
 /*
-    Mail loop
+    Main loop
 */
 Payload* Payload::start
 (
@@ -102,7 +104,6 @@ Payload* Payload::start
         onStopAfter();
         state = STATE_STOP;
     };
-
 
     if( lock( true ))
     {

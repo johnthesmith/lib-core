@@ -72,11 +72,27 @@ void PayloadEngine::onEngineStartBefore()
 */
 void PayloadEngine::onLoop()
 {
+    /* Check local application config */
+    bool configUpdated = getApplication()
+    -> checkConfigUpdate()
+    -> getConfigUpdated();
+
+    getApplication() -> getConfig() -> resultTo( this );
+
+    if( configUpdated )
+    {
+        getLog() -> setTrapEnabled
+        (
+            getApplication()
+            -> getConfig()
+            -> getBool( Path{ "engine", "trap" }, true )
+        );
+    }
+
     getLog()
     -> trapOn()
     -> begin( "Loop" )
     -> lineEnd();
-
 
     /* Begin of monitoring */
     getMon()
@@ -86,25 +102,8 @@ void PayloadEngine::onLoop()
     -> addInt( Path{ "count" })
     ;
 
-    /* Check local application config */
-    bool configUpdated = getApplication()
-    -> checkConfigUpdate()
-    -> getConfigUpdated();
-
-    getApplication() -> getConfig() -> resultTo( this );
-
     if( isOk() )
     {
-        if( configUpdated )
-        {
-            getLog() -> setTrapEnabled
-            (
-                getApplication()
-                -> getConfig()
-                -> getBool( Path{ "engine", "trap" }, true )
-            );
-        }
-
         /* Check enabled */
         auto enabled = getApplication()
         -> getConfig()
@@ -144,6 +143,7 @@ void PayloadEngine::onLoop()
             Log::logRecordFromString( code -> getString( "log", "ERROR" )),
             getCode()
         )
+        -> dump( getDetails(), "Details" )
         -> text( getMessage() );
 
         /* Exit form payload */

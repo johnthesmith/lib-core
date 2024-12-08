@@ -195,3 +195,19 @@ Result* Result::unlock()
     return this;
 }
 
+
+
+/*
+    Return true for locked
+*/
+bool Result::isLock()
+{
+    /* Let default result */
+    bool result = !sync.try_lock();
+    if( !result )
+    {
+        sync.unlock();
+    }
+
+    return result;
+}
