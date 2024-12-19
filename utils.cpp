@@ -447,6 +447,8 @@ void b
     Convertors
 */
 
+
+
 /*
     Convert char memory to string
 */
@@ -458,12 +460,7 @@ string toString
     unsigned long long int aSize
 )
 {
-    char c[ aSize + 1 ];
-    memcpy( c, aBuffer, aSize );
-    /* 0 trminator */
-    c[ aSize ] = 0;
-    string result( c );
-    return result;
+    return string( aBuffer, aSize );
 }
 
 

@@ -137,6 +137,28 @@ Mon* Mon::setBool
 }
 
 
+/*
+    Copy object in to path of mon
+*/
+Mon* Mon::copyObject
+(
+    Path aPath,         /* Path of object on mon structure */
+    ParamList* aSource  /* Source objet */
+)
+{
+    list
+    -> getParamList()
+    -> setObject
+    (
+        aPath,
+        ParamList::create() -> copyFrom( aSource )
+    );
+
+    return this;
+}
+
+
+
 
 /*
     Value increment

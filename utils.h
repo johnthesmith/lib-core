@@ -15,15 +15,15 @@ using namespace std;
 */
 enum ParamType
 {
-    KT_UNKNOWN,   /* Unknown data type */
-    KT_BOOL,      /* Boolean data type */
-    KT_STRING,    /* String data type */
-    KT_DATA,      /* Data type for representing binary data */
-    KT_INT,       /* Integer data type */
-    KT_DOUBLE,    /* Double data type */
-    KT_OBJECT,    /* Object data type (structures, classes, etc.) */
-    KT_ARRAY,     /* Array data type */
-    KT_NULL       /* Null data type (no value) */
+    KT_UNKNOWN,   /* 0 Unknown data type */
+    KT_BOOL,      /* 1 Boolean data type */
+    KT_STRING,    /* 2 String data type */
+    KT_DATA,      /* 3 Data type for representing binary data */
+    KT_INT,       /* 4 Integer data type */
+    KT_DOUBLE,    /* 5 Double data type */
+    KT_OBJECT,    /* 6 Object data type (structures, classes, etc.) */
+    KT_ARRAY,     /* 7 Array data type */
+    KT_NULL       /* 8 Null data type (no value) */
 };
 
 

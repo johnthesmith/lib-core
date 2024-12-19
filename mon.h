@@ -112,6 +112,18 @@ class Mon : public Result
 
 
         /*
+            Copy object in to path of mon
+        */
+        Mon* copyObject
+        (
+            Path,           /* Path of object on mon structure */
+            ParamList*      /* Source objet */
+        );
+
+
+
+
+        /*
             Value increment
         */
         Mon* addInt
