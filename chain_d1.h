@@ -153,6 +153,20 @@ class ChainD1 : public Chain
         );
 
 
+
+        /*
+            Calculate sum
+        */
+        double calcSumY();
+
+
+
+        /*
+            Calculate avg
+        */
+        double calcAvgY();
+
+
         /*
             Calculate delta between max and min values
         */

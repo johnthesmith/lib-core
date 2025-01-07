@@ -117,6 +117,16 @@ struct Moment
 
 
         /*
+            Return value of moment with scale
+        */
+        double scale
+        (
+            long long int
+        );
+
+
+
+        /*
             Return value of moment
         */
         Moment& set

@@ -139,6 +139,18 @@ long long Moment::get()
 
 
 /*
+    Return value of moment with scale
+*/
+double Moment::scale
+(
+    long long int aScale
+)
+{
+    return (double)value / (double)aScale;
+}
+
+
+/*
     Return value of moment
 */
 Moment& Moment::set

@@ -134,7 +134,6 @@ ChartData* ChartData::setMaxCount
 
 
 
-
 /*
     Return chart like string
     > 0123456789 <
@@ -145,48 +144,109 @@ ChartData* ChartData::setMaxCount
 */
 string ChartData::toString
 (
-    int aSize
+    int aScreenSize
 )
 {
+    double totalSumm = 0.0;
+    long long totalCount = 0;
     double currentMinY = minY;
     double currentMaxY = maxY;
 
-    if( autoMinY || autoMaxY )
+    if( autoMinY )
     {
-        calcMinMaxY( currentMinY, currentMaxY );
+        currentMinY = + INFINITY;
+        currentMaxY = - INFINITY;
     }
 
+    /* Define result stream */
     stringstream result;
-    if( aSize > 0 )
+
+    if( aScreenSize > 0 )
     {
-        auto current = (ChainItemD1*) getFirst();
-        auto shift = ( double )getCount() / ( double ) aSize;
-        double accum = 0;
+        auto dataCount = getCount();
 
-        for( unsigned long long int pos = 0; pos < aSize; pos ++ )
-        {
-            double average = 0;
-            accum += shift;
-
-            if( current != NULL )
+        /* Move data in to indexed buffer */
+        vector<double> data( dataCount );
+        loopFront
+        (
+            [
+                this,
+                &data,
+                &totalSumm,
+                &totalCount,
+                &currentMinY,
+                &currentMaxY
+            ]
+            ( ChainItem * item )
             {
-                if( accum < 1 )
+                double value = (( ChainItemD1* )item ) -> getValue();
+                totalSumm += value;
+                data[ totalCount ] = value;
+                totalCount++;
+
+                /* Calculate min and max */
+                if( autoMinY )
                 {
-                    average = current -> getValue();
+                    currentMinY = std::min( currentMinY, value );
+                    currentMaxY = std::max( currentMaxY, value );
                 }
-                else
+
+                return false;
+            }
+        );
+
+        /* Get step */
+        double step = (double)dataCount / aScreenSize;
+
+        /* Define the screen array */
+        auto screen = vector <double> ( aScreenSize );
+
+        /* Loop for screen elements */
+        for (int i = 0; i < aScreenSize; ++i)
+        {
+            double fromPoint = i * step;
+            double toPoint = (i + 1) * step;
+            size_t fromDataIndex = (size_t) fromPoint;
+            size_t toDataIndex = std::min((size_t) toPoint, data.size());
+
+            double sum = 0.0;
+            double totalWeight = 0.0;
+
+            for (size_t j = fromDataIndex; j <= toDataIndex; ++j)
+            {
+                double segmentStart = std::max(fromPoint, (double) j);
+                double segmentEnd = std::min(toPoint, (double)(j + 1));
+                double weight = segmentEnd - segmentStart;
+
+                if( j < dataCount )
                 {
-                    auto countItems = floor( accum );
-                    for( unsigned long long i = 0; i < countItems; i ++ )
-                    {
-                        average = max( average, current -> getValue());
-                        current = (ChainItemD1*) current -> getNext();
-                    }
-                    accum = accum - countItems;
+                    sum += weight * data[j];
+                    totalWeight += weight;
                 }
             }
 
-            switch( (int) norm( average, currentMinY, currentMaxY, 0.0, 8.0, true ) )
+            /* Calculate average */
+            double average = ( totalWeight > 0.0 ) ? ( sum / totalWeight ) : 0.0;
+
+            /* Store avg into array */
+            screen[i] = average;
+        }
+
+        /* Build the chart */
+        for( int pos = 0; pos < aScreenSize; pos ++ )
+        {
+            switch
+            (
+                (int) norm
+                (
+                    screen[ pos ],
+                    currentMinY,
+                    currentMaxY,
+                    0.0,
+                    8.0,
+                    true
+                )
+            )
             {
                 case 0: result << " "; break;
                 case 1: result << "▁"; break;
@@ -203,14 +263,16 @@ string ChartData::toString
 
         auto last = ( ChainItemD1* ) getLast();
         result
-        << " last:"
-        << ( last == NULL ? 0.0 : last -> getValue() )
+        << " lst:"
+        << ( last == NULL ? INFINITY : last -> getValue() )
         << " min:"
         << currentMinY
         << " max:"
         << currentMaxY
-        << " count:"
-        << getCount()
+        << " avg:"
+        << totalSumm / totalCount
+        << " cnt:"
+        << totalCount
         ;
     }
 

@@ -201,6 +201,27 @@ Mon* Mon::addDouble
 /*
     Set now in to parameter
 */
+Mon* Mon::div
+(
+    Path aPathDest,
+    Path aPath1,
+    Path aPath2
+)
+{
+    list  -> getParamList() -> setDouble
+    (
+        aPathDest,
+        list -> getParamList() -> getDouble( aPath1 ) /
+        list -> getParamList() -> getDouble( aPath2 )
+    );
+    return this;
+}
+
+
+
+/*
+    Set now in to parameter
+*/
 Mon* Mon::now
 (
     Path aPath,
@@ -214,6 +235,38 @@ Mon* Mon::now
     else
     {
         list  -> getParamList() -> setString( aPath, Moment().setNow().toString() );
+    }
+    return this;
+}
+
+
+
+/*
+    Interval trace
+*/
+Mon* Mon::trace
+(
+    Path aPath
+)
+{
+    auto p = list -> getObject( aPath );
+    long long last = 0;
+    if( p != NULL )
+    {
+        p -> loop
+        (
+            [ &last ]
+            ( Param* param )
+            {
+                auto current = param -> getInt();
+                if( last != 0 )
+                {
+                    param -> setInt( current - last );
+                }
+                last = current;
+                return false;
+            }
+        );
     }
     return this;
 }
@@ -237,6 +290,30 @@ Mon* Mon::interval
         Moment( list  -> getParamList() -> getInt( aPath1))
         .add( - list  -> getParamList() -> getInt( aPath2 ))
         .intervalToString()
+    );
+    return this;
+}
+
+
+
+
+/*
+    Set now in to parameter
+*/
+Mon* Mon::intervalScale
+(
+    Path aPathDest,
+    Path aPath1,
+    Path aPath2,
+    long long aScale
+)
+{
+    list  -> getParamList() -> setDouble
+    (
+        aPathDest,
+        Moment( list  -> getParamList() -> getInt( aPath1 ))
+        .add( - list  -> getParamList() -> getInt( aPath2 ))
+        .scale( aScale )
     );
     return this;
 }

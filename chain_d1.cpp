@@ -359,6 +359,40 @@ ChainD1* ChainD1::calcMinMaxY
 
 
 /*
+    Calculate sum
+*/
+double ChainD1::calcSumY()
+{
+    double result = 0.0;
+
+    loopFront
+    (
+        [ &result ]
+        ( ChainItem* item )
+        {
+            auto itemD1 = (ChainItemD1*)item;
+            result += itemD1 -> getValue();
+            return false;
+        }
+    );
+
+    return result;
+}
+
+
+
+/*
+    Calculate avg
+*/
+double ChainD1::calcAvgY()
+{
+    auto c = getCount();
+    return c > 0 ? calcSumY() / (double)c : 0.0;
+}
+
+
+
+/*
     Calculate delta between max and min values
 */
 double ChainD1::deltaMinMax()

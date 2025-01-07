@@ -148,11 +148,30 @@ class Mon : public Result
         /*
             Set now in to parameter
         */
+        Mon* div
+        (
+            Path,
+            Path,
+            Path
+        );
+
+
+
+        /*
+            Set now in to parameter
+        */
         Mon* now
         (
             Path,
             /* true = Integer, false = string */
             bool = false
+        );
+
+
+
+        Mon* trace
+        (
+            Path
         );
 
 
@@ -166,6 +185,20 @@ class Mon : public Result
             Path,
             Path
         );
+
+
+
+        /*
+            Set now in to parameter
+        */
+        Mon* intervalScale
+        (
+            Path aPathDest,
+            Path aPath1,
+            Path aPath2,
+            long long aScale
+        );
+
 
 
 
