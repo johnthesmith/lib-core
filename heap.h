@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cstddef>      /* for NULL */
-#include <functional>   /* for lyambda */
 
 
 
@@ -157,13 +156,51 @@ class Heap
 
 
         /*
-            Remove elements by lambda condition
+            Remove with lyambda
         */
-        virtual Heap* remove
+        template <typename Func> Heap* remove
         (
-            function <bool ( void* )>,
-            Heap* = NULL                  /* Removing. Warning!!! Must be empty */
-        );
+            Func callback,
+            Heap* aRemove
+        )
+        {
+            auto c = getCount();
+
+            if( aRemove != NULL )
+            {
+                aRemove -> resize( c );
+            }
+
+            int countRemove = 0;
+            int countKeep = 0;
+
+            for( int i = 0; i < c; i++ )
+            {
+                if( callback( items[ i ] ))
+                {
+                    if( aRemove != NULL )
+                    {
+                        aRemove -> setByIndex( countRemove, items[ i ] );
+                        countRemove++;
+                    }
+                }
+                else
+                {
+                    items[ countKeep ] = items[ i ];
+                    countKeep++;
+                }
+            }
+
+            if( aRemove != NULL )
+            {
+                aRemove -> resize( countRemove );
+            }
+
+            resize( countKeep );
+
+            return this;
+        };
+
 
 
 
@@ -190,12 +227,53 @@ class Heap
 
 
         /*
-            Loop with lyambda
+            Loop with lambda function over all items in the heap.
+            Parameters:
+                callback: A lambda function taking a pointer to an item in the heap and
+                    returning a boolean value indicating whether the iteration should continue.
+                    Note: The lambda function should have the following prototype:
+                        bool callback(void* item)
+
+            Returns:
+                A pointer to the heap object, allowing method chaining.
+
+            Example:
+                // Assume heap is an instance of Heap
+                // This lambda will print each item in the heap
+                heap->loop(
+                    [](void* item) {
+                        cout << "Item: " << item << endl;
+                        // Continue iteration
+                        return false;
+                    }
+                );
         */
-        Heap* loop
+        template <typename Func> Heap* loop
         (
-            function <bool ( void* )>
-        );
+            /* Lambda function applied to each item */
+            Func callback
+        )
+        {
+            /*
+                Iterate over all items in the heap
+                and apply the lambda function to each item.
+                If the lambda function returns true for any item,
+                the iteration stops.
+            */
+            bool stop = false;
+            auto c = getCount();
+            auto items = getItems();
+
+            for( int i = 0; i < c && !stop; i++ )
+            {
+                /* Apply the lambda function to the current item */
+                stop = callback( items[ i ] );
+            }
+
+            /* Return a pointer to the heap object */
+            return this;
+        };
+
 
 
 
@@ -223,9 +301,42 @@ class Heap
             Each elemento of Argument heap will add to This heap
             if it not exists in This
         */
-        virtual Heap* merge
+        template <typename Func> Heap* merge
         (
-            Heap*, /* Heap for merging */
-            function <bool ( void* )>
-        );
+            Heap* a,
+            Func callback
+        )
+        {
+            /* Get size of arguments */
+            int c = a -> getCount();
+
+            /* Create the new heap with size equals the arguemnts */
+            auto searched = Heap::create() -> resize( c );
+
+            /*
+                New elements searching for this in argiments
+                and store it to the Searched.
+            */
+            int addIndex = 0;
+            for( int i = 0; i < c; i++ )
+            {
+                auto item = a -> getByIndex( i );
+                if( callback( item ))
+                {
+                    searched -> setByIndex( addIndex, item );
+                    addIndex++;
+                }
+            }
+
+            /* Cut the list of searched elements */
+            searched -> resize( addIndex );
+
+            /* Add list of new heap in to this */
+            add( searched );
+
+            /* Destroy list of new heap */
+            searched -> destroy();
+
+            return this;
+        }
 };

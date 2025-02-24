@@ -179,7 +179,14 @@ bool Result::lock
     }
     else
     {
+        timeval lockStart, lockEnd;
+        gettimeofday(&lockStart, NULL);
         sync.lock();
+        gettimeofday(&lockEnd, NULL);
+
+        lockTime +=
+        (( unsigned long long int ) ( lockEnd.tv_sec - lockStart.tv_sec )) * 1000000
+        + ( lockEnd.tv_usec - lockStart.tv_usec );
     }
     return result;
 }

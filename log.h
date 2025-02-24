@@ -9,7 +9,6 @@
 using namespace std; /* для того что бы std:: не приходилось каждый раз писать */
 
 
-
 /*
     Правило выравниявания текста
 */
@@ -31,6 +30,9 @@ enum LogRecord
 class Log
 {
     private:
+
+        string threadOwner = "";
+
         /* Параметры журнала */
         /* активность лога влияет на команду Write */
         bool                enabled         = true;

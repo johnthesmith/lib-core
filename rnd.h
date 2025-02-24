@@ -13,55 +13,55 @@ class Rnd
 {
     private:
 
-        static unsigned long long seed;            /* Current seed */
-        static unsigned long long storedSeed;      /* Stored seed */
+        unsigned long long seed = 0;            /* Current seed */
 
     public:
+
+        static Rnd* create();
+        void destroy();
+
+
 
         /*
             Begin randomize from current time
         */
-        static void randomize();
+        Rnd* randomize();
 
 
 
         /*
-            Store seed value
+            Change seed directly
         */
-        static void storeSeed
+        Rnd* setSeed
         (
-            unsigned long long
+            unsigned long long int
         );
 
 
 
-        /*
-            Restore seed value
-        */
-        static void restoreSeed();
-
-
 
         /*
-            Get random value
+            Return current seed directly
         */
-        static void calcSeed();
+        unsigned long long int getSeed();
 
 
 
         /*
             Get random value
         */
-        static double get();
+        double get();
 
 
 
         /*
             Get random value from AMin to AMax
         */
-        static int get
+        int get
         (
+            /* Minimum */
             int,
+            /* Maximum */
             int
         );
 
@@ -70,9 +70,11 @@ class Rnd
         /*
             Get random value from AMin to AMax
         */
-        static unsigned int get
+        unsigned int get
         (
+            /* Minimum */
             unsigned int,
+            /* Maximum */
             unsigned int
         );
 
@@ -81,7 +83,7 @@ class Rnd
         /*
             Get random value from AMin=0 to AMax=0xFFFF FFFF FFFF
         */
-        static unsigned long long get
+        unsigned long long get
         (
             unsigned long long,
             unsigned long long
@@ -92,7 +94,7 @@ class Rnd
         /*
             Get random value from AMin to AMax
         */
-        static double get
+        double get
         (
             double,
             double
@@ -103,24 +105,14 @@ class Rnd
         /*
             Return uuid
         */
-        static string getUuid();
-
-
-
-        /*
-            Return uuid by seed
-        */
-        static string getUuid
-        (
-            unsigned long long
-        );
+        string getUuid();
 
 
 
         /*
             возвращает необходимость исолнения вероятного события
         */
-        static bool chanceByTime
+        bool chanceByTime
         (
             long,
             long

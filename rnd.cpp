@@ -3,18 +3,35 @@
 #include "rnd.h"
 
 
-unsigned long long Rnd::seed = 0;
-unsigned long long Rnd::storedSeed = 0;
+/*
+    Constructor
+*/
+Rnd* Rnd::create()
+{
+    return new Rnd();
+}
+
+
+
+/*
+    Destructor
+*/
+void Rnd::destroy()
+{
+    delete this;
+}
+
 
 
 /*
     Begin randomize from current time
 */
-void Rnd::randomize()
+Rnd* Rnd::randomize()
 {
     timeval currentTime;
     gettimeofday( &currentTime, 0 );
-    seed = ( currentTime.tv_usec );
+    setSeed( currentTime.tv_usec );
+    return this;
 }
 
 
@@ -22,30 +39,20 @@ void Rnd::randomize()
 /*
     Store seed
 */
-void Rnd::storeSeed
+Rnd* Rnd::setSeed
 (
     unsigned long long aSeed
 )
 {
-    storedSeed = seed;
     seed = aSeed;
+    return this;
 }
 
 
 
-void Rnd::restoreSeed()
+unsigned long long int Rnd::getSeed()
 {
-    seed = storedSeed;
-}
-
-
-
-/*
-    Get random value
-*/
-void Rnd::calcSeed()
-{
-    seed = (seed * 71103515245 + 17344371) & 0xFFFFFFFFFFFF;
+    return seed;
 }
 
 
@@ -55,8 +62,8 @@ void Rnd::calcSeed()
 */
 double Rnd::get()
 {
-    calcSeed();
-    return (double) seed / (double) 0x1000000000000;
+    seed = (seed * 71103515245 + 17344371) & 0xFFFFFFFFFF;
+    return (double) seed / (double)          0xFFFFFFFFFF;
 }
 
 
@@ -132,23 +139,6 @@ string Rnd::getUuid()
             get((unsigned int) 0, (unsigned int) 0xFFFF),
             get((unsigned int) 0, (unsigned int) 0xFFFFFFFF));
             string result( buffer );
-    return result;
-}
-
-
-
-/*
-    Return uuid by seed
-*/
-string Rnd::getUuid
-(
-    unsigned long long aSeed    /* Seed for current UUID */
-)
-{
-    string result;
-    storeSeed( aSeed );
-    result = getUuid();
-    restoreSeed();
     return result;
 }
 

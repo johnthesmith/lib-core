@@ -64,25 +64,51 @@ class ChainD1 : public Chain
         );
 
 
-
         /*
             Loop back
         */
-        ChainD1* loopBack
+        template <typename Func> ChainD1* loopBack
         (
-            function <bool ( ChainItemD1* )>
-        );
+            Func aCallback
+        )
+        {
+            Chain::loopBack
+            (
+                [ &aCallback ]
+                (
+                    ChainItem* aItem
+                )
+                {
+                    return aCallback( ( ChainItemD1* ) aItem  );
+                }
+            );
+            return this;
+        };
 
 
 
         /*
             Loop front
         */
-        ChainD1* loopFront
+        template <typename Func> ChainD1* loopFront
         (
-            function <bool ( ChainItemD1* )>,
-            ChainItem* = NULL
-        );
+            Func aCallback,
+            ChainItem* aStart = NULL
+        )
+        {
+            Chain::loopFront
+            (
+                [ &aCallback ]
+                (
+                    ChainItem* aItem
+                )
+                {
+                    return aCallback( ( ChainItemD1* ) aItem  );
+                },
+                aStart
+            );
+            return this;
+        };
 
 
 

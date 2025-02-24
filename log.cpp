@@ -8,8 +8,10 @@
 #include "utils.h"
 
 
+#include <thread>
 
 using namespace std; // для того что бы std:: не приходилось каждый раз писать
+
 
 
 Log::Log()
@@ -29,7 +31,6 @@ Log::~Log()
     {
         close();
     }
-
     delete beginStack;
 }
 

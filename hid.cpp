@@ -21,14 +21,17 @@ Hid& Hid::setString
 /*
     Fill hid from GUID
 */
-Hid& Hid::newGuid()
+Hid& Hid::newGuid
+(
+    Rnd* aRnd
+)
 {
-    *(( unsigned int* ) &data[0])       = Rnd::get((unsigned int)0, (unsigned int)0xFFFFFFFF);
-    *(( unsigned short* ) &data[4])     = Rnd::get(0, 0xFFFF);
-    *(( unsigned short* ) &data[6])     = Rnd::get(0, 0xFFFF);
-    *(( unsigned short* ) &data[8])     = Rnd::get(0, 0xFFFF);
-    *(( unsigned short* ) &data[10])    = Rnd::get(0, 0xFFFF);
-    *(( unsigned int* ) &data[12])      = Rnd::get((unsigned int) 0, (unsigned int) 0xFFFFFFFF);
+    *(( unsigned int* ) &data[0])       = aRnd -> get((unsigned int)0, (unsigned int)0xFFFFFFFF);
+    *(( unsigned short* ) &data[4])     = aRnd -> get(0, 0xFFFF);
+    *(( unsigned short* ) &data[6])     = aRnd -> get(0, 0xFFFF);
+    *(( unsigned short* ) &data[8])     = aRnd -> get(0, 0xFFFF);
+    *(( unsigned short* ) &data[10])    = aRnd -> get(0, 0xFFFF);
+    *(( unsigned int* ) &data[12])      = aRnd -> get((unsigned int) 0, (unsigned int) 0xFFFFFFFF);
     return *this;
 }
 

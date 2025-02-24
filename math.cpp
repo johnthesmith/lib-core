@@ -54,10 +54,22 @@ std::string valueToColor
 
 std::string valueToChar
 (
-    double aValue
+    double aValue,
+    bool aColor
 )
 {
-    string result = valueToColor( aValue );
+    string result = "";
+
+    if( aColor )
+    {
+        result = valueToColor( aValue );
+    }
+    else
+    {
+        if( aValue > EPSILON_D ) result += "+";
+        else if( aValue < - EPSILON_D ) result += "-";
+        else return result += " ";
+    }
     auto absValue = abs( aValue );
 
     if( absValue < EPSILON_D ) result += "0";
@@ -82,7 +94,12 @@ std::string valueToChar
     else if( absValue < 1000000000 ) result += "B";
     else result += "!";
 
-    return result + INK_DEFAULT;
+    if( aColor )
+    {
+        result += INK_DEFAULT;
+    }
+
+    return result;
 }
 
 

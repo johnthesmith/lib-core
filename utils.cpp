@@ -512,6 +512,8 @@ string toString
 
 
 
+
+
 /*
     Convert integer to string
 */
@@ -520,7 +522,9 @@ string toString
     /* Value for converting */
     long long int       aValue,
     /* Color out true or false */
-    bool                aColor
+    bool                aColor,
+    /* Minimum width with leading zeros (0 = no padding) */
+    int                 aWidth
 )
 {
     stringstream s;
@@ -532,9 +536,14 @@ string toString
         else s << INK_GREY;
     }
 
+    if( aWidth > 0 )
+    {
+        s << std::setw(aWidth) << std::setfill('0');
+    }
+
     if( aColor )
     {
-        s << abs( aValue );
+        s << abs(aValue);
         s << INK_DEFAULT;
     }
     else
@@ -544,7 +553,6 @@ string toString
 
     return s.str();
 }
-
 
 
 

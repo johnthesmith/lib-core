@@ -327,47 +327,6 @@ Chain* Chain::deleteLast()
 
 
 /*
-    Loop back
-*/
-Chain* Chain::loopBack
-(
-    function <bool ( ChainItem* )> aCallback
-)
-{
-    auto stop = false;
-    auto current = getLast();
-    while( !stop && current != NULL )
-    {
-        stop = aCallback( current );
-        current = current -> getPrev();
-    }
-    return this;
-}
-
-
-
-/*
-    Loop front
-*/
-Chain* Chain::loopFront
-(
-    function <bool ( ChainItem* )> aCallback,
-    ChainItem* aStart
-)
-{
-    auto stop = false;
-    auto current = aStart == NULL ? getFirst() : aStart;
-    while( !stop && current != NULL )
-    {
-        stop = aCallback( current );
-        current = current -> getNext();
-    }
-    return this;
-}
-
-
-
-/*
     Setters and getters
 */
 
@@ -397,38 +356,4 @@ ChainItem* Chain::getFirst()
 ChainItem* Chain::getLast()
 {
     return last;
-}
-
-
-
-Chain* Chain::dump
-(
-    function <string ( ChainItem* )> aCallback
-)
-{
-    loopFront
-    (
-        [ &aCallback]
-        ( ChainItem* aCurrent )
-        {
-            aCurrent -> getPrev() == NULL
-            ? cout << "NULL          "
-            : cout << aCurrent -> getPrev();
-
-            cout
-            << " < "
-            << aCallback( aCurrent )
-            << " | "
-            << aCurrent
-            << " > ";
-
-            aCurrent -> getNext() == NULL
-            ? cout << "NULL          "
-            : cout << aCurrent -> getNext();
-
-            cout << endl;
-            return false;
-        }
-    );
-    return this;
 }

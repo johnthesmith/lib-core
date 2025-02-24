@@ -240,7 +240,9 @@ string toString
     /* Value for converting */
     long long int,
     /* Color */
-    bool = false
+    bool = false,
+    /* Minimum width with leading zeros (0 = no padding) */
+    int = 0
 );
 
 

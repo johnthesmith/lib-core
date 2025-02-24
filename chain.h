@@ -1,8 +1,5 @@
 #pragma once
 
-
-#include <functional>   /* for lyambda */
-
 #include "result.h"
 #include "chain_item.h"
 
@@ -150,25 +147,44 @@ class Chain : public Result
         Chain* deleteLast();
 
 
-
         /*
             Loop back
         */
-        Chain* loopBack
+        template <typename Func> Chain* loopBack
         (
-            function <bool ( ChainItem* )>
-        );
+            Func aCallback
+        )
+        {
+            auto stop = false;
+            auto current = getLast();
+            while( !stop && current != NULL )
+            {
+                stop = aCallback( current );
+                current = current -> getPrev();
+            }
+            return this;
+        };
 
 
 
         /*
             Loop front
         */
-        Chain* loopFront
+        template <typename Func> Chain* loopFront
         (
-            function <bool ( ChainItem* )>,
-            ChainItem* = NULL
-        );
+            Func aCallback,
+            ChainItem* aStart = NULL
+        )
+        {
+            auto stop = false;
+            auto current = aStart == NULL ? getFirst() : aStart;
+            while( !stop && current != NULL )
+            {
+                stop = aCallback( current );
+                current = current -> getNext();
+            }
+            return this;
+        };
 
 
 
@@ -195,8 +211,37 @@ class Chain : public Result
         ChainItem* getLast();
 
 
-        Chain* dump
+
+
+        template <typename Func> Chain* dump
         (
-            function <string ( ChainItem* )> aCallback
-        );
+            Func aCallback
+        )
+        {
+            loopFront
+            (
+                [ &aCallback]
+                ( ChainItem* aCurrent )
+                {
+                    aCurrent -> getPrev() == NULL
+                    ? cout << "NULL          "
+                    : cout << aCurrent -> getPrev();
+
+                    cout
+                    << " < "
+                    << aCallback( aCurrent )
+                    << " | "
+                    << aCurrent
+                    << " > ";
+
+                    aCurrent -> getNext() == NULL
+                    ? cout << "NULL          "
+                    : cout << aCurrent -> getNext();
+
+                    cout << endl;
+                    return false;
+                }
+            );
+            return this;
+        };
 };

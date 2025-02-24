@@ -1,6 +1,8 @@
 #pragma once
 
 #include <string>
+#include <functional>
+
 #include "result.h"
 #include "log.h"
 #include "mon.h"

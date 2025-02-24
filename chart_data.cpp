@@ -1,5 +1,6 @@
 #include <cmath>
 #include <sstream>
+#include <vector>
 #include <iostream>
 #include "chart_data.h"
 #include "math.h"
@@ -167,6 +168,7 @@ string ChartData::toString
 
         /* Move data in to indexed buffer */
         vector<double> data( dataCount );
+
         loopFront
         (
             [

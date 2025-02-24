@@ -72,10 +72,18 @@ Mon* Mon::setString
     bool aOnce      /* Once set value */
 )
 {
+    #ifdef THREAD_PROTECTED
+        lock();
+    #endif
+
     if( !aOnce || !list -> getParamList() -> exists( aPath ))
     {
         list -> getParamList() -> setString( aPath, aValue );
     }
+
+    #ifdef THREAD_PROTECTED
+        unlock();
+    #endif
     return this;
 }
 
@@ -91,10 +99,19 @@ Mon* Mon::setInt
     bool aOnce              /* Once set value */
 )
 {
+    #ifdef THREAD_PROTECTED
+        lock();
+    #endif
+
     if( !aOnce || !list -> getParamList() -> exists( aPath ) )
     {
         list -> getParamList() -> setInt( aPath, aValue );
     }
+
+    #ifdef THREAD_PROTECTED
+        unlock();
+    #endif
+
     return this;
 }
 
@@ -110,10 +127,19 @@ Mon* Mon::setDouble
     bool aOnce      /* Once set value */
 )
 {
+    #ifdef THREAD_PROTECTED
+        lock();
+    #endif
+
     if( !aOnce || !list -> getParamList() -> exists( aPath ))
     {
         list -> getParamList() -> setDouble( aPath, aValue );
     }
+
+    #ifdef THREAD_PROTECTED
+        unlock();
+    #endif
+
     return this;
 }
 
@@ -129,10 +155,19 @@ Mon* Mon::setBool
     bool aOnce      /* Once set value */
 )
 {
+    #ifdef THREAD_PROTECTED
+        lock();
+    #endif
+
     if( !aOnce || !list -> getParamList() -> exists( aPath ))
     {
         list -> getParamList() -> setBool( aPath, aValue );
     }
+
+    #ifdef THREAD_PROTECTED
+        unlock();
+    #endif
+
     return this;
 }
 
@@ -146,6 +181,10 @@ Mon* Mon::copyObject
     ParamList* aSource  /* Source objet */
 )
 {
+    #ifdef THREAD_PROTECTED
+        lock();
+    #endif
+
     list
     -> getParamList()
     -> setObject
@@ -153,6 +192,10 @@ Mon* Mon::copyObject
         aPath,
         ParamList::create() -> copyFrom( aSource )
     );
+
+    #ifdef THREAD_PROTECTED
+        unlock();
+    #endif
 
     return this;
 }
@@ -169,11 +212,20 @@ Mon* Mon::addInt
     long long aValue
 )
 {
+    #ifdef THREAD_PROTECTED
+        lock();
+    #endif
+
     list -> getParamList() -> setInt
     (
         aPath,
         list  -> getParamList() -> getInt( aPath, 0 ) + aValue
     );
+
+    #ifdef THREAD_PROTECTED
+        unlock();
+    #endif
+
     return this;
 }
 
@@ -188,11 +240,20 @@ Mon* Mon::addDouble
     double aValue
 )
 {
+    #ifdef THREAD_PROTECTED
+        lock();
+    #endif
+
     list  -> getParamList() -> setDouble
     (
         aPath,
         list -> getParamList() -> getDouble( aPath, 0.0 ) + aValue
     );
+
+    #ifdef THREAD_PROTECTED
+        unlock();
+    #endif
+
     return this;
 }
 
@@ -208,12 +269,21 @@ Mon* Mon::div
     Path aPath2
 )
 {
+    #ifdef THREAD_PROTECTED
+        lock();
+    #endif
+
     list  -> getParamList() -> setDouble
     (
         aPathDest,
         list -> getParamList() -> getDouble( aPath1 ) /
         list -> getParamList() -> getDouble( aPath2 )
     );
+
+    #ifdef THREAD_PROTECTED
+        unlock();
+    #endif
+
     return this;
 }
 
@@ -228,6 +298,10 @@ Mon* Mon::now
     bool aInt
 )
 {
+    #ifdef THREAD_PROTECTED
+        lock();
+    #endif
+
     if( aInt )
     {
         list  -> getParamList() -> setInt( aPath, Moment().setNow().get() );
@@ -236,6 +310,11 @@ Mon* Mon::now
     {
         list  -> getParamList() -> setString( aPath, Moment().setNow().toString() );
     }
+
+    #ifdef THREAD_PROTECTED
+        unlock();
+    #endif
+
     return this;
 }
 
@@ -249,6 +328,10 @@ Mon* Mon::trace
     Path aPath
 )
 {
+    #ifdef THREAD_PROTECTED
+        lock();
+    #endif
+
     auto p = list -> getObject( aPath );
     long long last = 0;
     if( p != NULL )
@@ -268,6 +351,11 @@ Mon* Mon::trace
             }
         );
     }
+
+    #ifdef THREAD_PROTECTED
+        unlock();
+    #endif
+
     return this;
 }
 
@@ -284,6 +372,10 @@ Mon* Mon::interval
     Path aPath2
 )
 {
+    #ifdef THREAD_PROTECTED
+        lock();
+    #endif
+
     list  -> getParamList() -> setString
     (
         aPathDest,
@@ -291,6 +383,11 @@ Mon* Mon::interval
         .add( - list  -> getParamList() -> getInt( aPath2 ))
         .intervalToString()
     );
+
+    #ifdef THREAD_PROTECTED
+        unlock();
+    #endif
+
     return this;
 }
 
@@ -328,7 +425,16 @@ Mon* Mon::startTimer
     Path aPath
 )
 {
+    #ifdef THREAD_PROTECTED
+        lock();
+    #endif
+
     list -> getParamList() -> setInt( aPath, Moment().setNow().get() );
+
+    #ifdef THREAD_PROTECTED
+        unlock();
+    #endif
+
     return this;
 }
 
@@ -342,11 +448,20 @@ Mon* Mon::stopTimer
     Path aPath
 )
 {
+    #ifdef THREAD_PROTECTED
+        lock();
+    #endif
+
     list -> getParamList() -> setInt
     (
         aPath,
         Moment().setNow().get() - list -> getInt( aPath, 0 )
     );
+
+    #ifdef THREAD_PROTECTED
+        unlock();
+    #endif
+
     return this;
 }
 
@@ -361,6 +476,10 @@ Mon* Mon::timerToString
     Path aDest      /* Destination path */
 )
 {
+    #ifdef THREAD_PROTECTED
+        lock();
+    #endif
+
     if( aDest.empty() )
     {
         aDest = aSource;
@@ -371,6 +490,11 @@ Mon* Mon::timerToString
         aDest,
         Moment( list -> getInt( aSource )).intervalToString()
     );
+
+    #ifdef THREAD_PROTECTED
+        unlock();
+    #endif
+
     return this;
 }
 
@@ -385,9 +509,18 @@ Mon* Mon::dumpResult
     Result* aResult
 )
 {
+    #ifdef THREAD_PROTECTED
+        lock();
+    #endif
+
     list -> getParamList() -> setPath( aPath )
     -> setString( "code", aResult -> getCode() )
     -> setString( "message", aResult -> getMessage() );
+
+    #ifdef THREAD_PROTECTED
+        unlock();
+    #endif
+
     return this;
 }
 
@@ -402,6 +535,9 @@ Mon* Mon::minInt
     Path aSourcePath
 )
 {
+    #ifdef THREAD_PROTECTED
+        lock();
+    #endif
 
     list -> getParamList() -> setInt
     (
@@ -412,6 +548,11 @@ Mon* Mon::minInt
             list -> getParamList() -> getInt( aSourcePath, LLONG_MAX )
         )
     );
+
+    #ifdef THREAD_PROTECTED
+        unlock();
+    #endif
+
     return this;
 }
 
@@ -426,6 +567,9 @@ Mon* Mon::maxInt
     Path aSourcePath
 )
 {
+    #ifdef THREAD_PROTECTED
+        lock();
+    #endif
 
     list -> getParamList() -> setInt
     (
@@ -436,6 +580,11 @@ Mon* Mon::maxInt
             list -> getParamList() -> getInt( aSourcePath, LLONG_MIN )
         )
     );
+
+    #ifdef THREAD_PROTECTED
+        unlock();
+    #endif
+
     return this;
 }
 
@@ -451,6 +600,9 @@ Mon* Mon::maxInt
 */
 Mon* Mon::flush()
 {
+    #ifdef THREAD_PROTECTED
+        lock();
+    #endif
 
     if( !checkPath( getPath( file )))
     {
@@ -488,6 +640,11 @@ Mon* Mon::flush()
             fclose( handle );
         }
     }
+
+    #ifdef THREAD_PROTECTED
+        unlock();
+    #endif
+
     return this;
 }
 

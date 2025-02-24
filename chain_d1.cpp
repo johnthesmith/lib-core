@@ -101,55 +101,6 @@ ChainItemD1* ChainD1::createFirst
 
 
 /*
-    Loop back
-*/
-ChainD1* ChainD1::loopBack
-(
-    function <bool ( ChainItemD1* )> aCallback
-)
-{
-    Chain::loopBack
-    (
-        [ &aCallback ]
-        (
-            ChainItem* aItem
-        )
-        {
-            return aCallback( ( ChainItemD1* ) aItem  );
-        }
-    );
-    return this;
-}
-
-
-
-/*
-    Loop front
-*/
-ChainD1* ChainD1::loopFront
-(
-    function <bool ( ChainItemD1* )> aCallback,
-    ChainItem* aStart
-)
-{
-    Chain::loopFront
-    (
-        [ &aCallback ]
-        (
-            ChainItem* aItem
-        )
-        {
-            return aCallback( ( ChainItemD1* ) aItem  );
-        },
-        aStart
-    );
-    return this;
-}
-
-
-
-
-/*
     Put data in to double buffer
 */
 ChainD1* ChainD1::toBuffer

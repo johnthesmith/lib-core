@@ -92,7 +92,6 @@ Payload* Payload::start
     */
     auto doLoop = [ this ]()
     {
-        onStartBefore();
         while( state == STATE_LOOP )
         {
             internalLoop1();
@@ -107,6 +106,8 @@ Payload* Payload::start
 
     if( lock( true ))
     {
+        onStartBefore();
+
         if( aThread )
         {
             /* Run loop in the personal thread if it does not early */
@@ -127,7 +128,6 @@ Payload* Payload::start
                         application -> destroyThreadLog();
                     }
                 );
-                onStartAfter();
             }
         }
         else
@@ -136,6 +136,8 @@ Payload* Payload::start
             state = STATE_LOOP;
             doLoop();
         }
+
+        onStartAfter();
 
         unlock();
     }
@@ -181,6 +183,7 @@ Payload* Payload::waitStop()
             {
                 usleep( 1000 );
             };
+
             threadObject -> join();
 
             getLog()

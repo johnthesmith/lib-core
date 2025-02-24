@@ -29,7 +29,10 @@ class Hid
         /*
             Fill hid from GUID
         */
-        Hid& newGuid();
+        Hid& newGuid
+        (
+            Rnd*
+        );
 
         /*
             Get bit true or falce

@@ -44,7 +44,10 @@ std::string valueToColor
 
 std::string valueToChar
 (
-    double aVal
+    /* Value */
+    double,
+    /* Colored */
+    bool = true
 );
 
 
