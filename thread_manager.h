@@ -3,7 +3,6 @@
 #include <thread>
 #include <vector>
 #include <memory>
-#include <functional>
 #include <mutex>
 #include <tuple>
 #include <iostream>
@@ -20,10 +19,19 @@ using namespace std;
 /*
     Handler function
 */
-typedef function<void()> ThreadManagerHandler;
+using ThreadManagerHandler = void (*)
+(
+    /* data structuer pointer */
+    void*
+);
+
+
+
 
 /* Predeclaration */
 class ThreadManager;
+
+
 
 
 /*
@@ -39,7 +47,8 @@ class ThreadManagerTask :public Result
         thread                  worker;
         /* Callback methor */
         ThreadManagerHandler    handler;
-
+        /* Handler structure pointer */
+        void*                   data;
     public:
 
         /* Constructor */
@@ -77,24 +86,56 @@ class ThreadManagerTask :public Result
         /*
             Return true if task handler defined
         */
-        bool isHandler();
-
-
-
-        /* Wait end of process */
-        ThreadManagerTask* join();
+        bool isHandler()
+        {
+            return handler != nullptr;
+        }
 
 
 
 
         /*
-            Set task handler
+            Wait end of process
+        */
+        ThreadManagerTask* join()
+        {
+            if( worker.joinable())
+            {
+                worker.join();
+            }
+            return this;
+        }
+
+
+
+        /*
+            Set handler for task
         */
         ThreadManagerTask* setHandler
         (
             /* callback lambda */
-            ThreadManagerHandler
-        );
+            const ThreadManagerHandler a
+        )
+        {
+            handler = a;
+            return this;
+        }
+
+
+
+        /*
+            Set data handler for task
+        */
+        ThreadManagerTask* setData
+        (
+            /* callback lambda */
+            void* a
+        )
+        {
+            data = a;
+            return this;
+        }
+
 };
 
 
@@ -121,7 +162,7 @@ class ThreadManager :public Result
         /* true when all children threads on pause */
         bool                    paused = true;
         /* count of threads on pause */
-        int                     paused_threads = 0;
+        unsigned long           paused_threads = 0;
         /* Terminating begin */
         bool                    terminating = false;
         /* Terminateing finished */
@@ -228,23 +269,32 @@ class ThreadManager :public Result
 
 
         /*
-            Return thrue for manager terminating finish
+            Return true for terminated
         */
-        bool isTerminated();
+        bool isTerminated()
+        {
+            return terminated;
+        }
 
 
 
         /*
             Return thrue for manager terminating begin
         */
-        bool isTerminating();
+        bool isTerminating()
+        {
+            return terminating;
+        }
 
 
 
         /*
-            Return thrue for manager paused
+            Return true for all threads on paused
         */
-        bool isPaused();
+        bool isPaused()
+        {
+            return paused;
+        }
 
 
 
@@ -262,6 +312,8 @@ class ThreadManager :public Result
         (
             /* Handlers index */
             size_t,
+            /* Handler data */
+            void*,
             /* callback lambda */
             const ThreadManagerHandler
         );

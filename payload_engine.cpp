@@ -140,20 +140,20 @@ void PayloadEngine::onLoop()
         getLog()
         -> record
         (
-            Log::logRecordFromString( code -> getString( "log", "ERROR" )),
+            Log::logRecordFromString( code -> getString( Path{ "log" }, "ERROR" )),
             getCode()
         )
         -> dump( getDetails(), "Details" )
         -> text( getMessage() );
 
         /* Exit form payload */
-        if( code -> getBool( "exit", false ))
+        if( code -> getBool( Path{ "exit" }, false ))
         {
             stop();
         }
 
         /* Sleep timeout */
-        auto sleep = code -> getInt( "timeoutMcs", 0 );
+        auto sleep = code -> getInt( Path{ "timeoutMcs" }, 0 );
         if( sleep != 0)
         {
             setLoopTimeoutMcs( sleep );

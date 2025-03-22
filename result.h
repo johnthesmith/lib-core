@@ -135,7 +135,12 @@ class Result
         /*
             Return true if result code is ok
         */
-        bool isOk();
+        bool isOk()
+        {
+            return code == RESULT_OK;
+        }
+
+
 
 
 

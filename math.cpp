@@ -1,6 +1,5 @@
 #include <iostream>
 
-
 #include "console.h"
 #include "math.h"
 
@@ -55,7 +54,8 @@ std::string valueToColor
 std::string valueToChar
 (
     double aValue,
-    bool aColor
+    bool aColor,
+    array< string, 21 > aChar
 )
 {
     string result = "";
@@ -72,27 +72,27 @@ std::string valueToChar
     }
     auto absValue = abs( aValue );
 
-    if( absValue < EPSILON_D ) result += "0";
-    else if( absValue < 1e-9 ) result += "n";
-    else if( absValue < 1e-6 ) result += "µ";
-    else if( absValue < 1e-3 ) result += "m";
-    else if( absValue < 0.01 ) result += "c";
-    else if( absValue < 0.1 )  result += "d";
-    else if( absValue < 0.2 )  result += "1";
-    else if( absValue < 0.3 )  result += "2";
-    else if( absValue < 0.4 )  result += "3";
-    else if( absValue < 0.5 )  result += "4";
-    else if( absValue < 0.6 )  result += "5";
-    else if( absValue < 0.7 )  result += "6";
-    else if( absValue < 0.8 )  result += "7";
-    else if( absValue < 0.9 )  result += "8";
-    else if( absValue < 1.0 )  result += "9";
-    else if( absValue < 10 )   result += "I";
-    else if( absValue < 100 )  result += "D";
-    else if( absValue < 1000 ) result += "K";
-    else if( absValue < 1000000 ) result += "M";
-    else if( absValue < 1000000000 ) result += "B";
-    else result += "!";
+    if( absValue < EPSILON_D ) result += aChar[ 0 ];
+    else if( absValue < 1e-9 ) result += aChar[ 1 ];
+    else if( absValue < 1e-6 ) result += aChar[ 2 ];
+    else if( absValue < 1e-3 ) result += aChar[ 3 ];
+    else if( absValue < 0.01 ) result += aChar[ 4 ];
+    else if( absValue < 0.1 )  result += aChar[ 5 ];
+    else if( absValue < 0.2 )  result += aChar[ 6 ];
+    else if( absValue < 0.3 )  result += aChar[ 7 ];
+    else if( absValue < 0.4 )  result += aChar[ 8 ];
+    else if( absValue < 0.5 )  result += aChar[ 9 ];
+    else if( absValue < 0.6 )  result += aChar[ 10 ];
+    else if( absValue < 0.7 )  result += aChar[ 11 ];
+    else if( absValue < 0.8 )  result += aChar[ 12 ];
+    else if( absValue < 0.9 )  result += aChar[ 13 ];
+    else if( absValue < 1.0 )  result += aChar[ 14 ];
+    else if( absValue < 10 )   result += aChar[ 15 ];
+    else if( absValue < 100 )  result += aChar[ 16 ];
+    else if( absValue < 1000 ) result += aChar[ 17 ];
+    else if( absValue < 1000000 ) result += aChar[ 18 ];
+    else if( absValue < 1000000000 ) result += aChar[ 19 ];
+    else result += aChar[ 20 ];
 
     if( aColor )
     {

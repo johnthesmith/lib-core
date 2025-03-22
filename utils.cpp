@@ -404,7 +404,7 @@ void toLowerCase
 )
 {
     auto c = a.length();
-    for( int i = 0; i < c; i ++ )
+    for( size_t i = 0; i < c; i ++ )
     {
         a[ i ] = tolower( a[ i ] );
     }

@@ -62,8 +62,14 @@ unsigned long long int Rnd::getSeed()
 */
 double Rnd::get()
 {
-    seed = (seed * 71103515245 + 17344371) & 0xFFFFFFFFFF;
-    return (double) seed / (double)          0xFFFFFFFFFF;
+    seed = seed * 6364136223846793005ULL + 1;
+    return (double)((seed ^ (seed >> 22)) & 0xFFFFFFFFULL) / 4294967295.0;
+
+//    seed = (seed * 6364136223846793005ULL + 1442695040888963407ULL) & 0xFFFFFFFFFFFFFFFFULL;
+//    return (double) seed / (double) 0xFFFFFFFFFFFFFFFFULL;
+
+//    seed = (seed * 71103515245 + 17344371) & 0xFFFFFFFFFF;
+//    return (double) seed / (double)          0xFFFFFFFFFF;
 }
 
 

@@ -110,12 +110,6 @@ Result* Result::setResult
 
 
 
-bool Result::isOk()
-{
-    return code == RESULT_OK;
-}
-
-
 
 /*
     Set result and message

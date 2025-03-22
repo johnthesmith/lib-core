@@ -52,16 +52,23 @@ class Heap
 
 
         /*
-            Return Neurons list count elements
+            Return count elements in heap
         */
-        virtual int getCount();
+        int getCount()
+        {
+            return count;
+        }
 
 
 
         /*
             Return Neurons list count elements
         */
-        virtual void** getItems();
+        void** getItems()
+        {
+            return items;
+        }
+
 
 
 
@@ -204,15 +211,15 @@ class Heap
 
 
 
-        /*
-            Remove all elements form  this,
-            contains in the argument
-        */
-        virtual Heap* remove
-        (
-            Heap* aRemove
-        );
-
+//        /*
+//            Remove all elements form  this,
+//            contains in the argument
+//        */
+//        virtual Heap* remove
+//        (
+//            Heap* aRemove
+//        );
+//
 
 
         /*

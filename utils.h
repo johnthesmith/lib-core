@@ -52,6 +52,7 @@ const vector<string> explode
 string implode
 (
     const vector<string>,
+    /* Delimiter */
     const string&
 );
 

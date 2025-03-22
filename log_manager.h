@@ -2,7 +2,9 @@
 
 #include <string>
 #include <map>
+
 #include "log.h"
+#include "result.h"
 
 
 
@@ -10,7 +12,7 @@ using namespace std;
 
 
 
-class LogManager
+class LogManager : public Result
 {
     private:
 

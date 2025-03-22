@@ -19,28 +19,23 @@ ThreadManagerTask::ThreadManagerTask
         [ this ]
         ()
         {
-// cout << "thread_start\n";
             /* Thread code */
             while( !owner -> isTerminating() )
             {
-// cout << "task_run\n";
                 if( handler != nullptr )
                 {
                     if( !owner -> isPaused() )
                     {
                         /* Task execute */
-// cout << "task_work\n";
-                        handler();
+                        handler( data );
                     }
                     /* Drop task */
                     handler = nullptr;
                 }
-// cout << "task_completete\n";
 
                 /* Set pause */
                 owner -> taskComplete();
             }
-// cout << "thread_stop\n";
         }
     );
 }
@@ -77,49 +72,6 @@ void ThreadManagerTask::destroy()
 {
     delete this;
 }
-
-
-
-/*
-    Return true if task handler defined
-*/
-bool ThreadManagerTask::isHandler()
-{
-    return handler != nullptr;
-}
-
-
-
-/*
-    Wait end of process
-*/
-ThreadManagerTask* ThreadManagerTask::join()
-{
-    if( worker.joinable())
-    {
-// cout << "task_join_begin\n";
-        worker.join();
-// cout << "task_join_end\n";
-    }
-    return this;
-}
-
-
-
-/*
-    Set task by index
-*/
-ThreadManagerTask* ThreadManagerTask::setHandler
-(
-    /* callback lambda */
-    const ThreadManagerHandler aHandler
-)
-{
-// cout << "set_handler\n";
-    handler = aHandler;
-    return this;
-}
-
 
 
 
@@ -303,7 +255,6 @@ ThreadManager* ThreadManager::wait()
     unique_lock <mutex> lck( mtx );
 
     /* Wait pause for all threads */
-// cout << "manager_wait_begin\n";
     cv_manager.wait
     (
         lck,
@@ -312,7 +263,6 @@ ThreadManager* ThreadManager::wait()
             return !(!terminating && paused_threads < tasks.size());
         }
     );
-// cout << "manager_wait_end\n";
 
     paused = true;
 
@@ -357,48 +307,15 @@ ThreadManager* ThreadManager::taskComplete()
 
         if( !terminating )
         {
-// cout << "task_complete_wait_begin\n";
             cv.wait
             (
                 lck
             );
-// cout << "task_complete_wait_end\n";
         }
     }
 
     return this;
 }
-
-
-
-/*
-    Return true for terminated
-*/
-bool ThreadManager::isTerminating()
-{
-    return terminating;
-}
-
-
-
-/*
-    Return true for terminated
-*/
-bool ThreadManager::isTerminated()
-{
-    return terminated;
-}
-
-
-
-/*
-    Return true for all threads on paused
-*/
-bool ThreadManager::isPaused()
-{
-    return paused;
-}
-
 
 
 
@@ -409,6 +326,8 @@ ThreadManager* ThreadManager::setHandler
 (
     /* Handlers index */
     size_t aIndex,
+    /* Data structure ptr for handler */
+    void* aData,
     /* callback lambda */
     const ThreadManagerHandler aHandler
 )
@@ -417,7 +336,9 @@ ThreadManager* ThreadManager::setHandler
         unique_lock <mutex> lck( mtx );
         if( aIndex < tasks.size() )
         {
-            tasks[ aIndex ] -> setHandler( aHandler );
+            tasks[ aIndex ]
+            -> setHandler( aHandler )
+            -> setData( aData );
         }
     }
     return this;

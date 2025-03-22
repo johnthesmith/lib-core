@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <array>
 
 /* Pi constant */
 static const double PI = 3.14159265358979323846;
@@ -9,6 +10,7 @@ static const double PI = 3.14159265358979323846;
 static const double EPSILON_D = 1e-9;
 
 
+using namespace std;
 
 /*
     Value normalization
@@ -41,13 +43,29 @@ std::string valueToColor
 );
 
 
+const array< string, 21 > VALUE_GRAPH =
+{
+    " ", " ", " ", " ", " ", " ", "░", "░", "░", "▒",
+    "▒", "▒", "▓", "▓", "▓", "█", "█", "█", "█", "█",
+    "█",
+};
+
+
+const array< string, 21 > VALUE_CHAR =
+{
+    "0", "n", "µ", "m", "c", "d", "1", "2", "3", "4",
+    "5", "6", "7", "8", "9", "I", "D", "K", "M", "B",
+    "!"
+};
+
 
 std::string valueToChar
 (
     /* Value */
     double,
     /* Colored */
-    bool = true
+    bool = true,
+    array< string, 21 > = VALUE_CHAR
 );
 
 

@@ -54,10 +54,10 @@ Application::Application
     }
 
     /* Create mon */
-    mon         = Mon::create( cli -> getString( "mon", "default.mon" ));
+    mon         = Mon::create( cli -> getString( Path{ "mon" }, "default.mon" ));
 
     /* Set log destination */
-    getLog() -> setFileName( cli -> getString( "log", "" ) );
+    getLog() -> setFileName( cli -> getString( Path{ "log" }, "" ) );
 }
 
 
@@ -293,6 +293,6 @@ bool Application::getConfigUpdated()
 */
 string Application::getConfigFileName()
 {
-    return getCli() -> getString( "config", "./config.json" );
+    return getCli() -> getString( Path{ "config" }, "./config.json" );
 }
 

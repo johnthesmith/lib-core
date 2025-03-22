@@ -62,26 +62,6 @@ Heap* Heap::setItems
 
 
 /*
-    Return count elements in heap
-*/
-int Heap::getCount()
-{
-    return count;
-}
-
-
-
-/*
-    Return count elements in heap
-*/
-void** Heap::getItems()
-{
-    return items;
-}
-
-
-
-/*
     Add heap from argument to this heap
 */
 Heap* Heap::add
@@ -301,25 +281,25 @@ void* Heap::remove
 
 
 
-/*
-    Remove all elements form  this,
-    contains in the argument
-*/
-Heap* Heap::remove
-(
-    Heap* aRemove
-)
-{
-//    remove
-//    (
-//        [ &aRemove ]
-//        ( void* aItem )
-//        {
-//            return aRemove -> indexBy( aItem ) >= 0;
-//        }
-//    );
-    return this;
-}
+///*
+//    Remove all elements form  this,
+//    contains in the argument
+//*/
+//Heap* Heap::remove
+//(
+//    Heap* aRemove
+//)
+//{
+////    remove
+////    (
+////        [ &aRemove ]
+////        ( void* aItem )
+////        {
+////            return aRemove -> indexBy( aItem ) >= 0;
+////        }
+////    );
+//    return this;
+//}
 
 
 

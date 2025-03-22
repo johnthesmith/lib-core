@@ -25,12 +25,16 @@ LogManager::LogManager
 */
 LogManager::~LogManager()
 {
+    lock();
+
     for( auto item : logList )
     {
         item.second
         -> close()
         -> destroy();
     }
+
+    unlock();
 }
 
 
@@ -82,8 +86,12 @@ Log* LogManager::createLog
         -> prm( "thread id", threadId )
         -> lineEnd();
         /* Registrate in list of the logs */
+
+        lock();
         logList[ threadId ] = result;
+        unlock();
     }
+
     return result;
 }
 
@@ -99,8 +107,10 @@ LogManager* LogManager::destroyLog()
     auto result = getLog();
     if( result != log )
     {
+        lock();
         logList[ threadId ] -> destroy();
         logList.erase( threadId );
+        unlock();
     }
     return this;
 }
@@ -115,10 +125,17 @@ LogManager* LogManager::destroyLog()
 Log* LogManager::getLog()
 {
     auto threadId = getThreadId();
-    return
+
+    lock();
+
+    auto result =
     threadId != "" && logList.find( threadId ) != logList.end()
     ? logList[ threadId ]
     : log;
+
+    unlock();
+
+    return result;
 }
 
 
