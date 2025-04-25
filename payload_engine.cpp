@@ -168,7 +168,6 @@ void PayloadEngine::onLoop()
 
     /* Final monitoring */
     getMon() -> setString( Path{ "Result" }, getCode() ) -> flush();
-
     getLog()
     -> end()
     -> trapOff()

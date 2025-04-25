@@ -15,10 +15,15 @@ bool isNum
 )
 {
     auto ch = a.c_str();
-    for( int i=0, n = strlen( ch ); i < n; i++ )
+    auto n = strlen( ch );
+
+    if( n == 0 ) return false;
+
+    for( int i = 0; i < n; i++ )
     {
         if( ch[ i ] < '0' || ch[ i ] > '9') return false;
     }
+
     return true;
 }
 

@@ -37,6 +37,23 @@ double norm
 
 
 
+/*
+    Linear interpolation without borders
+*/
+template <typename typeA, typename typeB>
+
+double itpLin
+(
+    typeA a,
+    typeB b,
+    double t = 0.5
+)
+{
+    return a + ( b - a ) * t;
+}
+
+
+
 std::string valueToColor
 (
     double aValue
@@ -67,6 +84,8 @@ std::string valueToChar
     bool = true,
     array< string, 21 > = VALUE_CHAR
 );
+
+
 
 
 

@@ -4,6 +4,9 @@
 #include "result.h"
 #include "../json/param_list.h"
 
+//#include <boost/stacktrace.hpp>
+
+
 using namespace std; // для того что бы std:: не приходилось каждый раз писать
 
 
@@ -63,7 +66,12 @@ Result* Result::setCode
     string a  /* String for Text */
 )
 {
-    code = a;
+//    if( a == "" )
+//    {
+//        std::cout << boost::stacktrace::stacktrace();
+//    }
+
+    code = a == "" ? "EMPTY_STATE" : a;
     return this;
 }
 
