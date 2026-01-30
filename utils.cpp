@@ -10,7 +10,7 @@
 
 #include "utils.h"
 #include "math.h"
-
+#include <cmath>
 
 using namespace std;
 
@@ -246,6 +246,20 @@ string getPath
     auto path = explode( a, "/" );
     path.pop_back();
     return implode( path, "/" );
+}
+
+
+
+/*
+    Return file name with ext
+*/
+string getFile
+(
+    const string a
+)
+{
+    auto path = explode( a, "/" );
+    return path.back();
 }
 
 
@@ -582,4 +596,16 @@ double toDouble
 )
 {
     return atof( a.c_str() );
+}
+
+
+
+unsigned int length
+(
+    int a
+)
+{
+    return a == 0
+    ? 1
+    : static_cast<int>(std::log10(std::abs( a ))) + 1;
 }

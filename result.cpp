@@ -66,11 +66,6 @@ Result* Result::setCode
     string a  /* String for Text */
 )
 {
-//    if( a == "" )
-//    {
-//        std::cout << boost::stacktrace::stacktrace();
-//    }
-
     code = a == "" ? "EMPTY_STATE" : a;
     return this;
 }

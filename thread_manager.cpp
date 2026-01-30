@@ -1,6 +1,7 @@
 #include "thread_manager.h"
-
-
+#include <unistd.h> /* usleep */
+#include <x86intrin.h>
+#include <iomanip>  // для std::hex и std::setw
 
 ThreadManagerTask::ThreadManagerTask
 (
@@ -32,9 +33,8 @@ ThreadManagerTask::ThreadManagerTask
                     /* Drop task */
                     handler = nullptr;
                 }
-
-                /* Set pause */
-                owner -> taskComplete();
+                /* Wait */
+                owner -> taskComplete( this );
             }
         }
     );
@@ -139,7 +139,6 @@ void ThreadManager::destroy()
 }
 
 
-
 /*
     Check threads count and add new thread
     Threads will not deleted
@@ -149,14 +148,13 @@ bool ThreadManager::prepare
     size_t aCount
 )
 {
+    unique_lock <mutex> lck( mtx );
+
     if( !terminating || terminated )
     {
-        {
-            unique_lock <mutex> lck( mtx );
-            /* Set terminate to false */
-            terminating = false;
-            terminated = false;
-        }
+        /* Set terminate to false */
+        terminating = false;
+        terminated = false;
 
         /* Check thread count */
         for( size_t i = tasks.size(); i < aCount; i ++ )
@@ -164,7 +162,16 @@ bool ThreadManager::prepare
             /* Add task to tasks */
             tasks.push_back( ThreadManagerTask::create( this ));
         }
-        wait();
+        /* Wait for compleet all threads */
+        cv_manager.wait
+        (
+            lck,
+            [ this, aCount ]()
+            {
+                /* This is terminateing || isPause() */
+                return terminating || pausedThreads == tasks.size();
+            }
+        );
 
         return true;
     }
@@ -176,23 +183,19 @@ bool ThreadManager::prepare
 
 
 
-
 /*
     Method starts a threads
 */
 ThreadManager* ThreadManager::run()
 {
-    if( paused )
-    {
-        /* Reset pause */
-        paused = false;
+    /* Wait current jobs finish */
+    wait();
 
-        /* Drop all counters */
-        paused_threads = 0;
+    /* Send signal for all threads */
+    unique_lock <mutex> lck( mtx );
+    pausedThreads = 0;
+    notifyTasks();
 
-        /* Send signal for all threads */
-        notifyTasks();
-    }
     return this;
 }
 
@@ -203,8 +206,6 @@ ThreadManager* ThreadManager::run()
 */
 ThreadManager* ThreadManager::terminate()
 {
-    // cout << "terminate_begin\n";
-
     {
         unique_lock <mutex> lck( mtx );
         terminating = true;
@@ -213,11 +214,9 @@ ThreadManager* ThreadManager::terminate()
     /* Send signal for manager */
     notifyTasks();
 
-    for (auto& item : tasks)
+    for( auto& item : tasks )
     {
-// cout << "terminate_join_begin\n";
         item -> join();
-// cout << "terminate_join_end\n";
     }
 
     {
@@ -229,6 +228,9 @@ ThreadManager* ThreadManager::terminate()
             item -> destroy();
         }
 
+        /* Drop cout of tasks */
+        pausedThreads = 0;
+
         /* Delete all threads items */
         tasks.clear();
     }
@@ -238,11 +240,8 @@ ThreadManager* ThreadManager::terminate()
     /* Send signal for all threads */
     notifyManager();
 
-    // cout << "terminate_end\n";
-
     return this;
 }
-
 
 
 
@@ -260,11 +259,10 @@ ThreadManager* ThreadManager::wait()
         lck,
         [ this ]()
         {
-            return !(!terminating && paused_threads < tasks.size());
+            /* This is terminateing || isPause() */
+            return terminating || pausedThreads == tasks.size();
         }
     );
-
-    paused = true;
 
     return this;
 }
@@ -297,20 +295,17 @@ ThreadManager* ThreadManager::notifyTasks()
     Dont't use it method from application
     Only for internal use
 */
-ThreadManager* ThreadManager::taskComplete()
+ThreadManager* ThreadManager::taskComplete( ThreadManagerTask* a )
 {
+    uint64_t tsc = __rdtsc();
+    string t = std::to_string(tsc);
     {
         unique_lock <mutex> lck( mtx );
-        paused_threads++;
-
+        pausedThreads++;
         notifyManager();
-
         if( !terminating )
         {
-            cv.wait
-            (
-                lck
-            );
+            cv.wait( lck );
         }
     }
 

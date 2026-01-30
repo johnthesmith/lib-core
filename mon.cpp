@@ -590,6 +590,17 @@ Mon* Mon::maxInt
 
 
 
+/*
+*/
+Mon* Mon::remove
+(
+    Path aPath
+)
+{
+    list -> getParamList() -> removeByPath( aPath );
+    return this;
+}
+
 /**************************************************************************
     Services method
 */

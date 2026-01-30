@@ -8,6 +8,8 @@
 using namespace std;
 
 
+//static unsigned long long int rndcount = 0;
+
 
 class Rnd
 {

@@ -112,6 +112,13 @@ string getPath
 
 
 
+string getFile
+(
+    const string
+);
+
+
+
 vector <string> getFileList
 (
     const string
@@ -284,4 +291,10 @@ double toDouble
     string
 );
 
+
+
+unsigned int length
+(
+    int a
+);
 

@@ -62,6 +62,8 @@ unsigned long long int Rnd::getSeed()
 */
 double Rnd::get()
 {
+//    rndcount++;
+//cout << rndcount << ":" << seed << "\n";
     seed = seed * 6364136223846793005ULL + 1;
     return (double)((seed ^ (seed >> 22)) & 0xFFFFFFFFULL) / 4294967295.0;
 

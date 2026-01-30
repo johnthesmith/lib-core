@@ -49,7 +49,12 @@ class ThreadManagerTask :public Result
         ThreadManagerHandler    handler;
         /* Handler structure pointer */
         void*                   data;
+
     public:
+
+        string z = "";
+//        uint64_t z = 0x0;
+
 
         /* Constructor */
         ThreadManagerTask
@@ -159,10 +164,8 @@ class ThreadManager :public Result
         condition_variable cv;
         /* Manager waiting controller */
         condition_variable cv_manager;
-        /* true when all children threads on pause */
-        bool                    paused = true;
         /* count of threads on pause */
-        unsigned long           paused_threads = 0;
+        unsigned long           pausedThreads = 0;
         /* Terminating begin */
         bool                    terminating = false;
         /* Terminateing finished */
@@ -293,7 +296,8 @@ class ThreadManager :public Result
         */
         bool isPaused()
         {
-            return paused;
+            unique_lock <mutex> lck( mtx );
+            return pausedThreads == tasks.size();
         }
 
 
@@ -301,7 +305,10 @@ class ThreadManager :public Result
         /*
             Don't call it
         */
-        ThreadManager* taskComplete();
+        ThreadManager* taskComplete
+        (
+            ThreadManagerTask*
+        );
 
 
 

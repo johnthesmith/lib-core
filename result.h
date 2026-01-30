@@ -12,26 +12,6 @@ using namespace std;
 const string RESULT_OK = "ok";
 
 
-/*
-    Tread protected flag information
-    this flag need to add -DTHREAD_PROTECTED flag
-*/
-struct FlagPrinter
-{
-    FlagPrinter()
-    {
-        #ifdef THREAD_PROTECTED
-            cout << "THREAD_PROTECTED enabled\n";
-        #else
-            cout << "THREAD_PROTECTED disabled\n";
-        #endif
-    }
-};
-
-static FlagPrinter flagPrinter;
-
-
-
 
 
 /*

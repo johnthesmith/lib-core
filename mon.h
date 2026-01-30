@@ -265,6 +265,12 @@ class Mon : public Result
         );
 
 
+
+        Mon* remove
+        (
+            Path
+        );
+
         /**************************************************************************
             Services method
         */
