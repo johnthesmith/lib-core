@@ -5,9 +5,19 @@
 #include <unistd.h>         /* usleep */
 #include <iostream>
 
+#include <signal.h>
+#include <termios.h>
+
 #include "utils.h"
 
 
+
+
+/*
+    Статический указатель на текущее приложение для обработки сигналов
+    Без этого будет ошибка линковки
+*/
+Application* Application::application = NULL;
 
 /*
     Constructor
@@ -18,6 +28,9 @@ Application::Application
     char**  aList   /* cli arguments */
 )
 {
+    /* Записываем указатель */
+    application = this;
+
     /* Create base coponents */
     log         = Log::create();
     logManager  = LogManager::create( log );
@@ -72,6 +85,15 @@ Application::~Application()
     config      -> destroy();
     log         -> destroy();
     logManager  -> destroy();
+
+    /*
+        Восстанавливаем стандартные обработчики для всех зарегистрированных 
+        сигналов
+    */
+    for( int sig : registered_signals )
+    {
+        signal( sig, SIG_DFL );
+    }
 }
 
 
@@ -296,3 +318,33 @@ string Application::getConfigFileName()
     return getCli() -> getString( Path{ "config" }, "./config.json" );
 }
 
+
+
+/*
+    Глобальный обработчик сигналов
+*/
+static void globalSignalHandler
+(
+    int aSignal
+)
+{
+    if( Application::application != NULL )
+    {
+        Application::application -> onSignal( aSignal );
+    }
+}
+
+
+
+/*
+    Регистрация сигнала
+    После регистрации будет вызываться globalSignalHandler onSignal
+*/
+void Application::registerSignal
+(
+    int aSignal
+)
+{
+    registered_signals.push_back( aSignal );
+    signal( aSignal, globalSignalHandler );
+}

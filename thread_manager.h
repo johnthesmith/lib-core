@@ -4,6 +4,8 @@
 #include <vector>
 #include <memory>
 #include <mutex>
+#include <unordered_map>
+#include <atomic>
 #include <tuple>
 #include <iostream>
 #include <condition_variable>
@@ -13,6 +15,35 @@
 
 
 using namespace std;
+
+/*
+
+  run                                                stop
+--*--------------------------------------------------*-------> t
+   \                                                 |
+    \-----------------------                         |
+     \----------                                     |
+      \----------------------                        |
+       \                     \------------           |
+        \                     \-----                 |
+         \                     \---------            |
+          \                     \--------------------*
+           \--------------
+                          \------------------
+                           \--------------
+
+*/
+
+
+
+
+enum TaskState
+{
+    TASK_CREATING,
+    TASK_WAITING,
+    TASK_RUNNING,
+    TASK_TERMINATED
+};
 
 
 
@@ -40,7 +71,8 @@ class ThreadManager;
 class ThreadManagerTask :public Result
 {
     private:
-
+        /* Thread id */
+        std::string             id;
         /* Thread manager */
         ThreadManager*          owner;
         /* Thread worker */
@@ -49,16 +81,22 @@ class ThreadManagerTask :public Result
         ThreadManagerHandler    handler;
         /* Handler structure pointer */
         void*                   data;
+        size_t                  dataSize;
+        /* Task mutex */
+        mutex                   task_mutex;
+        /* Sleeper and wakeup */
+        condition_variable      task_cv;
+        /* Task state */
+        std::atomic<TaskState>  state{ TASK_CREATING};
 
     public:
 
-        string z = "";
-//        uint64_t z = 0x0;
-
-
-        /* Constructor */
+        /*
+            Constructor
+        */
         ThreadManagerTask
         (
+            const std::string,
             ThreadManager*
         );
 
@@ -73,28 +111,48 @@ class ThreadManagerTask :public Result
 
         /*
             Create new task
+            Doesn't call it directly
         */
-        static ThreadManagerTask* create
+        inline static ThreadManagerTask* create
         (
-            ThreadManager*
-        );
+            const std::string aId,
+            ThreadManager* aManager
+        )
+        {
+            return new ThreadManagerTask( aId, aManager );
+        }
 
 
 
         /*
-            Destroy task
+            Selfdestructor
         */
-        void destroy();
+        inline void destroy()
+        {
+            delete this;
+        }
 
 
 
         /*
             Return true if task handler defined
         */
-        bool isHandler()
+        inline bool isHandler()
         {
             return handler != nullptr;
         }
+
+
+
+        /*
+            Run task
+        */
+        ThreadManagerTask* run
+        (
+            ThreadManagerHandler,
+            void* = nullptr,
+            size_t = 0
+        );
 
 
 
@@ -102,7 +160,7 @@ class ThreadManagerTask :public Result
         /*
             Wait end of process
         */
-        ThreadManagerTask* join()
+        inline ThreadManagerTask* join()
         {
             if( worker.joinable())
             {
@@ -114,33 +172,29 @@ class ThreadManagerTask :public Result
 
 
         /*
-            Set handler for task
+            Wake up the task
         */
-        ThreadManagerTask* setHandler
-        (
-            /* callback lambda */
-            const ThreadManagerHandler a
-        )
+        inline void notify()
         {
-            handler = a;
-            return this;
+            task_cv.notify_one();
         }
+
 
 
 
         /*
-            Set data handler for task
+            Clear memory buffer
         */
-        ThreadManagerTask* setData
-        (
-            /* callback lambda */
-            void* a
-        )
+        inline ThreadManagerTask* freeData()
         {
-            data = a;
+            if( data != nullptr )
+            {
+                ::operator delete( data );
+                dataSize = 0;
+                data = nullptr;
+            }
             return this;
         }
-
 };
 
 
@@ -149,6 +203,7 @@ class ThreadManagerTask :public Result
 /*
     Thread manageger
 */
+
 class ThreadManager :public Result
 {
     private:
@@ -156,39 +211,41 @@ class ThreadManager :public Result
         LogManager* logManager;
 
         /* List of workers with handlers */
-        vector<ThreadManagerTask*> tasks;
+        std::unordered_map<string, ThreadManagerTask*> tasks;
 
         /* Mutex of this manager */
         mutex                   mtx;
-        /* Child thread waiting controller */
-        condition_variable cv;
         /* Manager waiting controller */
         condition_variable cv_manager;
-        /* count of threads on pause */
-        unsigned long           pausedThreads = 0;
         /* Terminating begin */
         bool                    terminating = false;
         /* Terminateing finished */
         bool                    terminated = false;
+        /* Running task counter, add when run, dec when stop */
+        std::atomic<size_t>     runningCount{0};
+
 
         /*
             Send wakeup signal for waiting manager
         */
-        ThreadManager* notifyManager();
-
+        inline ThreadManager* notifyManager()
+        {
+            cv_manager.notify_all();
+            return this;
+        }
 
         /*
             Send wakeup signal for waiting tasks
         */
-        ThreadManager* notifyTasks();
-
-
-
-        /*
-            Add new thread for thread manager
-            It will be paused.
-        */
-        ThreadManagerTask* addThread();
+        ThreadManager* notifyTasks()
+        {
+            unique_lock <mutex> lck( mtx );
+            for( auto& [id, task] : tasks )
+            {
+                task -> notify();
+            }
+            return this;
+        }
 
 
     public:
@@ -210,31 +267,41 @@ class ThreadManager :public Result
         ~ThreadManager();
 
 
+
         /*
             Static method to create object
         */
-        static ThreadManager* create
+        inline static ThreadManager* create
         (
-            LogManager*
-        );
-
-
-
-        /*
-            Static method for shared_ptr
-        */
-        static shared_ptr<ThreadManager> shared
-        (
-            /* LogManager object */
-            LogManager*
-        );
+            LogManager* aLogManager
+        )
+        {
+            return new ThreadManager( aLogManager );
+        }
 
 
 
         /*
             Self-destructor
         */
-        void destroy();
+        inline void destroy()
+        {
+            delete this;
+        }
+
+
+
+        /*
+            Static method for shared_ptr
+        */
+        shared_ptr<ThreadManager> shared
+        (
+            /* Log manager */
+            LogManager* aLogManager
+        )
+        {
+            return make_shared <ThreadManager>( aLogManager );
+        }
 
 
 
@@ -242,17 +309,10 @@ class ThreadManager :public Result
             Check threads count and add new thread
             Threads will not deleted
         */
-        bool prepare
+        ThreadManagerTask* add
         (
-            size_t
+            const std::string&
         );
-
-
-
-        /*
-            Method starts threads
-        */
-        ThreadManager* run();
 
 
 
@@ -263,11 +323,26 @@ class ThreadManager :public Result
 
 
 
-
         /*
-            Method to wait for all threads to finish
+            Wait for compleet all threads
         */
-        ThreadManager* wait();
+        inline ThreadManager* wait()
+        {
+            /* Lock mutex */
+            unique_lock <mutex> lck( mtx );
+            /* Wait pause for all threads */
+            cv_manager.wait
+            (
+                lck,
+                [ this ]()
+                {
+                    /* This is terminateing || isPause() */
+                    return terminating || runningCount == 0;
+                }
+            );
+
+            return this;
+        }
 
 
 
@@ -292,46 +367,49 @@ class ThreadManager :public Result
 
 
         /*
-            Return true for all threads on paused
+            Dont't use it method from application
+            Only for internal use
         */
-        bool isPaused()
+        inline ThreadManager* taskComplete()
         {
-            unique_lock <mutex> lck( mtx );
-            return pausedThreads == tasks.size();
+            runningCount--;
+            {
+                unique_lock <mutex> lck( mtx );
+                notifyManager();
+            }
+            return this;
         }
 
 
 
         /*
-            Don't call it
+            Dont't use it method from application
+            Only for internal use
         */
-        ThreadManager* taskComplete
-        (
-            ThreadManagerTask*
-        );
+        ThreadManager* taskRun();
 
-
-
-        /*
-            Set task by index
-        */
-        ThreadManager* setHandler
-        (
-            /* Handlers index */
-            size_t,
-            /* Handler data */
-            void*,
-            /* callback lambda */
-            const ThreadManagerHandler
-        );
 
 
         /*
             Return count of threads
         */
-        size_t getCount();
+        inline size_t getCount() const
+        {
+            return tasks.size();
+        }
 
 
 
-        bool isEmpty();
+        /*
+            Return task by id or null
+        */
+        inline ThreadManagerTask* byId
+        (
+            /*Id of task */
+            const string& aId
+        )
+        {
+            auto it = tasks.find( aId );
+            return it != tasks.end() ? it -> second : nullptr;
+        }
 };

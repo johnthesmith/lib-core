@@ -2,6 +2,7 @@
 
 #include <string>
 #include <functional>
+#include <csignal>
 
 #include "result.h"
 #include "log.h"
@@ -31,7 +32,20 @@ class Application : public Result
         bool            configUpdated       = false;
         long int        lastConfigUpdate    = 0;
 
+        /* Массив зарегистрированных сигналов */
+        std::vector<int> registered_signals;
+
+    protected:
+
+        /* Регистрация сигнала для обработки */
+        void registerSignal
+        (
+            int /* Код сигнала */
+        );
+
     public:
+        /* Статический указательн на приложение */
+        static Application* application;
 
         /*
             Constructor
@@ -170,4 +184,14 @@ class Application : public Result
         */
         string getConfigFileName();
 
+
+
+        Application* setupSignalHandlers();
+
+
+        /* On signal event handler for overriding in clients */
+        virtual bool onSignal( int aSignal )
+        {
+            return false;
+        }
 };

@@ -1,41 +1,61 @@
 #include "thread_manager.h"
 #include <unistd.h> /* usleep */
 #include <x86intrin.h>
+#include <memory.h>
 #include <iomanip>  // для std::hex и std::setw
+
+
 
 ThreadManagerTask::ThreadManagerTask
 (
+    const std::string aId,
     ThreadManager* aManager
 )
+:
+    id( aId ),
+    owner( aManager ),
+    handler( nullptr ),
+    data( nullptr ),
+    dataSize( 0 ),
+    state( TASK_CREATING )
 {
-    /* Let manager */
-    owner = aManager;
-
-    /* Reset handler */
-    handler = nullptr;
-
     /* Create thread with body */
     worker = thread
     (
         [ this ]
         ()
         {
-            /* Thread code */
             while( !owner -> isTerminating() )
             {
-                if( handler != nullptr )
                 {
-                    if( !owner -> isPaused() )
-                    {
-                        /* Task execute */
-                        handler( data );
-                    }
-                    /* Drop task */
-                    handler = nullptr;
+                    unique_lock <mutex> lock( task_mutex );
+                    state = TASK_WAITING;
+                    notify();
+                    task_cv.wait
+                    (
+                        lock,
+                        [ this ]
+                        ()
+                        {
+                            return state == TASK_RUNNING || owner -> isTerminating();
+                        }
+                    );
                 }
-                /* Wait */
-                owner -> taskComplete( this );
+
+                if( !owner -> isTerminating() )
+                {
+                    if( handler != nullptr )
+                    {
+                        handler( data );
+                        handler = nullptr;
+                    }
+
+                    owner -> taskComplete();
+                }
             }
+
+            state = TASK_TERMINATED;
+
         }
     );
 }
@@ -48,30 +68,60 @@ ThreadManagerTask::ThreadManagerTask
 ThreadManagerTask::~ThreadManagerTask()
 {
     join();
+    freeData();
 }
 
 
 
+
 /*
-    Create new task
+    Run task
 */
-ThreadManagerTask* ThreadManagerTask::create
+ThreadManagerTask* ThreadManagerTask::run
 (
-    ThreadManager* aManager
+    ThreadManagerHandler aHandler,
+    void* aData,
+    size_t aDataSize
 )
 {
-    return new ThreadManagerTask( aManager );
+    /* Lock task */
+    unique_lock <mutex> lock( task_mutex );
+
+    /* Waiting finish of task or terminating */
+    task_cv.wait
+    (
+        lock,
+        [ this ]
+        ()
+        {
+            return state == TASK_WAITING || owner -> isTerminating();
+        }
+    );
+
+    if( !owner -> isTerminating() )
+    {
+        /* Set handler */
+        handler = aHandler;
+
+        /* Free data */
+        freeData();
+
+        /* Let new buffer */
+        if( aData != nullptr && aDataSize != 0 )
+        {
+            dataSize = aDataSize;
+            data = ::operator new( dataSize );
+            memcpy( data, aData, dataSize );
+        }
+
+        owner -> taskRun();
+        state = TASK_RUNNING;
+        notify();
+    }
+
+    return this;
 }
 
-
-
-/*
-    Selfdestructor
-*/
-void ThreadManagerTask::destroy()
-{
-    delete this;
-}
 
 
 
@@ -105,98 +155,29 @@ ThreadManager::~ThreadManager()
 
 
 /*
-    Static method to create object
-*/
-ThreadManager* ThreadManager::create
-(
-    LogManager* aLogManager
-)
-{
-    return new ThreadManager( aLogManager );
-}
-
-
-
-/*
-    Static method for shared_ptr
-*/
-shared_ptr<ThreadManager> ThreadManager::shared
-(
-    LogManager* aLogManager
-)
-{
-    return make_shared <ThreadManager>( aLogManager );
-}
-
-
-
-/*
-    Self-destructor
-*/
-void ThreadManager::destroy()
-{
-    delete this;
-}
-
-
-/*
     Check threads count and add new thread
     Threads will not deleted
 */
-bool ThreadManager::prepare
+ThreadManagerTask* ThreadManager::add
 (
-    size_t aCount
+    const std::string& aId
 )
 {
+    ThreadManagerTask* result = nullptr;
+
     unique_lock <mutex> lck( mtx );
 
-    if( !terminating || terminated )
+    if( !terminating && !terminated )
     {
-        /* Set terminate to false */
-        terminating = false;
-        terminated = false;
-
-        /* Check thread count */
-        for( size_t i = tasks.size(); i < aCount; i ++ )
+        result = byId( aId );
+        if( result == nullptr )
         {
-            /* Add task to tasks */
-            tasks.push_back( ThreadManagerTask::create( this ));
+            /* Create new task */
+            result = ThreadManagerTask::create( aId, this );
+            tasks[ aId ] = result;
         }
-        /* Wait for compleet all threads */
-        cv_manager.wait
-        (
-            lck,
-            [ this, aCount ]()
-            {
-                /* This is terminateing || isPause() */
-                return terminating || pausedThreads == tasks.size();
-            }
-        );
-
-        return true;
     }
-    else
-    {
-        return false;
-    }
-}
-
-
-
-/*
-    Method starts a threads
-*/
-ThreadManager* ThreadManager::run()
-{
-    /* Wait current jobs finish */
-    wait();
-
-    /* Send signal for all threads */
-    unique_lock <mutex> lck( mtx );
-    pausedThreads = 0;
-    notifyTasks();
-
-    return this;
+    return result;
 }
 
 
@@ -211,33 +192,22 @@ ThreadManager* ThreadManager::terminate()
         terminating = true;
     }
 
-    /* Send signal for manager */
     notifyTasks();
-
-    for( auto& item : tasks )
+    for( auto& [id, task] : tasks )
     {
-        item -> join();
+        task -> join();
     }
 
     {
         unique_lock <mutex> lck( mtx );
-
-        /* Wait stop threads */
-        for (auto& item : tasks)
+        for( auto& [id, task] : tasks )
         {
-            item -> destroy();
+            task -> destroy();
         }
-
-        /* Drop cout of tasks */
-        pausedThreads = 0;
-
-        /* Delete all threads items */
         tasks.clear();
     }
 
     terminated = true;
-
-    /* Send signal for all threads */
     notifyManager();
 
     return this;
@@ -245,112 +215,14 @@ ThreadManager* ThreadManager::terminate()
 
 
 
-/*
-    Wait for compleet all threads
-*/
-ThreadManager* ThreadManager::wait()
-{
-    /* Lock mutex */
-    unique_lock <mutex> lck( mtx );
-
-    /* Wait pause for all threads */
-    cv_manager.wait
-    (
-        lck,
-        [ this ]()
-        {
-            /* This is terminateing || isPause() */
-            return terminating || pausedThreads == tasks.size();
-        }
-    );
-
-    return this;
-}
-
-
-
-/*
-    Send wakeup signal for waiting manager
-*/
-ThreadManager* ThreadManager::notifyManager()
-{
-    cv_manager.notify_all();
-    return this;
-}
-
-
-
-/*
-    Send wakeup signal for waiting tasks
-*/
-ThreadManager* ThreadManager::notifyTasks()
-{
-    cv.notify_all();
-    return this;
-}
-
 
 
 /*
     Dont't use it method from application
     Only for internal use
 */
-ThreadManager* ThreadManager::taskComplete( ThreadManagerTask* a )
+ThreadManager* ThreadManager::taskRun()
 {
-    uint64_t tsc = __rdtsc();
-    string t = std::to_string(tsc);
-    {
-        unique_lock <mutex> lck( mtx );
-        pausedThreads++;
-        notifyManager();
-        if( !terminating )
-        {
-            cv.wait( lck );
-        }
-    }
-
+    runningCount++;
     return this;
 }
-
-
-
-/*
-    Set task by index
-*/
-ThreadManager* ThreadManager::setHandler
-(
-    /* Handlers index */
-    size_t aIndex,
-    /* Data structure ptr for handler */
-    void* aData,
-    /* callback lambda */
-    const ThreadManagerHandler aHandler
-)
-{
-    {
-        unique_lock <mutex> lck( mtx );
-        if( aIndex < tasks.size() )
-        {
-            tasks[ aIndex ]
-            -> setHandler( aHandler )
-            -> setData( aData );
-        }
-    }
-    return this;
-}
-
-
-
-
-size_t ThreadManager::getCount()
-{
-    return tasks.size();
-}
-
-
-
-bool ThreadManager::isEmpty()
-{
-    return tasks.size() == 0;
-}
-
