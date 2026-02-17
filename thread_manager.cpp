@@ -169,7 +169,10 @@ ThreadManagerTask* ThreadManager::add
 
     if( !terminating && !terminated )
     {
-        result = byId( aId );
+        /* Search by id under mutex */
+        auto it = tasks.find( aId );
+        result = it != tasks.end() ? it -> second : nullptr;
+
         if( result == nullptr )
         {
             /* Create new task */
@@ -208,7 +211,7 @@ ThreadManager* ThreadManager::terminate()
     }
 
     terminated = true;
-    notifyManager();
+    notify();
 
     return this;
 }

@@ -18,20 +18,19 @@ using namespace std;
 
 /*
 
-  run                                                stop
+  add -> run                                         stop
 --*--------------------------------------------------*-------> t
    \                                                 |
-    \-----------------------                         |
-     \----------                                     |
-      \----------------------                        |
-       \                     \------------           |
-        \                     \-----                 |
-         \                     \---------            |
-          \                     \--------------------*
+    A-----------------------                         |
+     B----------                                     |
+      C----------------------                        |
+       \                     D------------           |
+        \                     E-----                 |
+         \                     F---------            |
+          \                     G--------------------*
            \--------------
-                          \------------------
-                           \--------------
-
+                          I------------------
+                           J--------------
 */
 
 
@@ -228,7 +227,7 @@ class ThreadManager :public Result
         /*
             Send wakeup signal for waiting manager
         */
-        inline ThreadManager* notifyManager()
+        inline ThreadManager* notify()
         {
             cv_manager.notify_all();
             return this;
@@ -375,7 +374,7 @@ class ThreadManager :public Result
             runningCount--;
             {
                 unique_lock <mutex> lck( mtx );
-                notifyManager();
+                notify();
             }
             return this;
         }
@@ -409,6 +408,7 @@ class ThreadManager :public Result
             const string& aId
         )
         {
+            unique_lock <mutex> lck( mtx );
             auto it = tasks.find( aId );
             return it != tasks.end() ? it -> second : nullptr;
         }
