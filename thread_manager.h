@@ -1,5 +1,6 @@
 #pragma once
 
+#include <unistd.h>
 #include <thread>
 #include <vector>
 #include <memory>
@@ -325,7 +326,11 @@ class ThreadManager :public Result
         /*
             Wait for compleet all threads
         */
-        inline ThreadManager* wait()
+        inline ThreadManager* wait
+        (
+            ThreadManagerHandler aCallback = nullptr,
+            void* aData = nullptr
+        )
         {
             /* Lock mutex */
             unique_lock <mutex> lck( mtx );
@@ -333,12 +338,27 @@ class ThreadManager :public Result
             cv_manager.wait
             (
                 lck,
-                [ this ]()
+                [ this, aCallback, aData ]()
                 {
+                    /* Wait callback */
+                    if( aCallback != nullptr )
+                    {
+                        aCallback( aData );
+                    }
                     /* This is terminateing || isPause() */
                     return terminating || runningCount == 0;
                 }
             );
+
+//            while( !terminating && !runningCount == 0 )
+//            {
+//                /* Wait callback */
+//                if( aCallback != nullptr )
+//                {
+//                    aCallback( aData );
+//                }
+//                usleep(10000);
+//            }
 
             return this;
         }

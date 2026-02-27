@@ -49,7 +49,6 @@ ThreadManagerTask::ThreadManagerTask
                         handler( data );
                         handler = nullptr;
                     }
-
                     owner -> taskComplete();
                 }
             }
@@ -215,8 +214,6 @@ ThreadManager* ThreadManager::terminate()
 
     return this;
 }
-
-
 
 
 

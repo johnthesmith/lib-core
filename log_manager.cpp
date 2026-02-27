@@ -128,10 +128,20 @@ Log* LogManager::getLog()
 
     lock();
 
-    auto result =
-    threadId != "" && logList.find( threadId ) != logList.end()
-    ? logList[ threadId ]
-    : log;
+    Log* result = NULL;
+
+    if
+    (
+        threadId != ""
+        && logList.find( threadId ) != logList.end()
+    )
+    {
+        result = logList[ threadId ];
+    }
+    else
+    {
+        result = log;
+    }
 
     unlock();
 
