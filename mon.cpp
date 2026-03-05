@@ -342,7 +342,7 @@ Mon* Mon::trace
             ( Param* param )
             {
                 auto current = param -> getInt();
-                if( last != 0 )
+                if( last != 0 && current > last )
                 {
                     param -> setInt( current - last );
                 }
