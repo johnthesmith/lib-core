@@ -47,9 +47,12 @@ class PayloadEngine : public Payload
         */
         static PayloadEngine* create
         (
-            Application*,
-            string
-        );
+            Application* aApplication,
+            string aId
+        )
+        {
+            return new PayloadEngine( aApplication, aId );
+        }
 
 
 

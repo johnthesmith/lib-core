@@ -19,7 +19,7 @@ bool isNum
 
     if( n == 0 ) return false;
 
-    for( int i = 0; i < n; i++ )
+    for( size_t i = 0; i < n; i++ )
     {
         if( ch[ i ] < '0' || ch[ i ] > '9') return false;
     }

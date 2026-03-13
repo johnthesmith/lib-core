@@ -50,18 +50,32 @@ Moment& Moment::setNow()
 */
 string Moment::toString()
 {
-    time_t time = (long long ) get() / SECOND;
+    time_t time = (long long)get() / SECOND;
     auto mcs = get() % SECOND;
-    auto l = strlen( "yyyy-mm-dd hh:mm:ss.uuuuuu" );
 
-    char timeString[ l ];
-    strftime( timeString, l, "%F %T", gmtime( &time ));
+    char timeString[64];
+    struct tm tm_buf;
+    gmtime_r(&time, &tm_buf);  // thread-safe
+    strftime(timeString, sizeof(timeString), "%F %T", &tm_buf);
 
-    /* Return result */
     stringstream ss;
-    ss << timeString << '.' << std::setw( 6 ) << setfill( '0' ) << mcs;
+    ss << timeString << '.' << setw(6) << setfill('0') << mcs;
     return ss.str();
 }
+
+//string Moment::toString()
+//{
+//    time_t time = (long long ) get() / SECOND;
+//    auto mcs = get() % SECOND;
+//
+//    char timeString[ 64 ];
+//    strftime( timeString, sizeof(timeString), "%F %T", gmtime( &time ));
+//
+//    /* Return result */
+//    stringstream ss;
+//    ss << timeString << '.' << std::setw( 6 ) << setfill( '0' ) << mcs;
+//    return ss.str();
+//}
 
 
 

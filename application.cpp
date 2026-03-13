@@ -4,11 +4,13 @@
 #include <fstream>          /* lock */
 #include <unistd.h>         /* usleep */
 #include <iostream>
+#include <limits.h>
 
 #include <signal.h>
 #include <termios.h>
 
 #include "utils.h"
+#include "payload.h"
 
 
 
@@ -66,6 +68,8 @@ Application::Application
         cli -> setValue( key, value );
     }
 
+    prepareConfiguration();
+
     /* Create mon */
     mon         = Mon::create( cli -> getString( Path{ "mon" }, "default.mon" ));
 
@@ -80,6 +84,8 @@ Application::Application
 */
 Application::~Application()
 {
+    /* Destroy all objects */
+
     mon         -> destroy();
     cli         -> destroy();
     config      -> destroy();
@@ -277,12 +283,20 @@ Application* Application::checkConfigUpdate()
             /* Load config and cli */
             getConfig()
             -> clear()
-            -> fromJsonFile( configFileName );
+            -> fromJsonFile( configFileName )
+            ;
 
             if( getConfig() -> isOk())
             {
                 getConfig() -> resultTo( this );
                 getConfig() -> copyFrom( getCli() ) ;
+            }
+            else
+            {
+                getLog()
+                -> warning( "Config error" )
+                -> prm( "code", getConfig() -> getCode() )
+                ;
             }
         }
 
@@ -347,4 +361,216 @@ void Application::registerSignal
 {
     registered_signals.push_back( aSignal );
     signal( aSignal, globalSignalHandler );
+}
+
+
+
+
+/*
+    Prepare configuration for application running
+*/
+Application* Application::prepareConfiguration()
+{
+    /* Output cli arguments */
+    getLog() -> begin( "CLI parameters reading" );
+
+    for( int i = 0; i < getCli() -> getCount(); i++ )
+    {
+        auto param = getCli() -> getByIndex( i );
+        getLog()
+        -> trace( "" )
+        -> prm( param -> getName(), param -> getString() );
+    }
+    getLog()
+    -> trace( "Config source" )
+    -> prm( "file", getConfigFileName() )
+    -> end();
+
+    return this;
+}
+
+
+/*
+    Run application
+*/
+Application* Application::run()
+{
+    /* Config monitoring loop */
+    while( !terminated )
+    {
+        checkConfigUpdate();
+        /* Try to load payload if not loaded */
+        if( getConfigUpdated() )
+        {
+            /* Get current path */
+            char cwd[ PATH_MAX ];
+            std::string currentPath = "";
+            if( getcwd( cwd, sizeof(cwd)) != NULL )
+            {
+                currentPath = std::string(cwd);
+            }
+
+            /* List of payloads from config */
+            auto payloadsConf = getConfig() -> getObject
+            (
+                Path{ "engine", "payloads" }
+            );
+
+            if( payloadsConf != nullptr )
+            {
+                /*
+                    Stop and unload payloads if payloads:
+                        loaded but not exists in config
+                        or change library
+                */
+                for( auto& [ key, val ] : payloads )
+                {
+                    auto confItem = payloadsConf -> getObject( Path{ key });
+                    if
+                    (
+                        /* In conf not found */
+                        confItem == nullptr ||
+                        /* Lib change */
+                        confItem != nullptr &&
+                        val.libraryPath != confItem -> getString( Path{ "lib" } ) ||
+                        /* Not enabled */
+                        confItem -> getBool( Path{ "enabled" }, true ) == false
+                    )
+                    {
+                        /* Paylaod stop and unload */
+                        val.instance -> destroy();
+                        val.instance = nullptr;
+                    }
+                }
+
+                /*
+                    Payloads load if not exsist
+                */
+                getLog() -> begin( "Payload config" );
+                payloadsConf -> loop
+                (
+                    [ this ]
+                    ( Param* confItem )
+                    {
+                        if( confItem -> isObject() )
+                        {
+                            auto key = confItem -> getName();
+
+                            auto lib = confItem
+                            -> getObject()
+                            -> getString( Path{ "lib" } );
+
+                            auto log = confItem
+                            -> getObject()
+                            -> getString( Path{ "log" } );
+
+                            auto thread = confItem
+                            -> getObject()
+                            -> getBool( Path{ "thread" } );
+
+                            getLog()
+                            -> begin( "item" )
+                            -> prm( "name", key )
+                            -> prm( "library", lib );
+
+                            if
+                            (
+                                confItem
+                                -> getObject()
+                                -> getBool( Path{ "enabled" }, true )
+                            )
+                            {
+                                auto item = payloads.find( key );
+                                if
+                                (
+                                    item == payloads.end() ||
+                                    (item -> second).instance == nullptr
+                                )
+                                {
+                                    auto payload = Payload::load( lib, this, key );
+                                    if( payload != nullptr )
+                                    {
+                                        getLog()
+                                        -> trace( "Payload loaded" )
+                                        -> lineEnd();
+
+                                        payloads[ key ] = PayloadItem
+                                        {
+                                            lib,
+                                            nullptr,
+                                            payload
+                                        };
+
+                                        /* Start payload */
+                                        payload -> start( thread );
+                                    }
+                                    else
+                                    {
+                                        getLog()
+                                        -> warning( "Payload library not found" )
+                                        -> prm( "name", lib )
+                                        -> lineEnd();
+                                    }
+                                }
+                                else
+                                {
+                                    getLog()
+                                    -> trace( "Payload is staying" )
+                                    -> lineEnd();
+                                }
+                            }
+                            else
+                            {
+                                getLog()
+                                -> info( "Payload disabled" )
+                                -> lineEnd();
+                            }
+                            getLog() -> end() -> lineEnd();
+                        }
+                        else
+                        {
+                            getLog()
+                            -> warning( "Not array of item" )
+                            -> lineEnd();
+                        }
+                        return false;
+                    }
+                );
+
+                /*
+                    Payloads instance clear
+                */
+                std::map<string, PayloadItem> newPayloads;
+                for( auto& [ key, val ] : payloads )
+                {
+                    if( val.instance != nullptr )
+                    {
+                        newPayloads[ key ] = val;
+                    }
+                }
+                payloads = newPayloads;
+
+                getLog() -> end();
+            }
+            else
+            {
+                getLog()
+                -> warning( "engine.payloads argument not found" )
+                -> lineEnd();
+            }
+        }
+
+        usleep( 100000 );
+    }
+
+    /* All payloads stop and destroy*/
+    for( auto& [ key, val ] : payloads )
+    {
+        if( val.instance != nullptr )
+        {
+            val.instance -> destroy();
+        }
+    }
+
+    return this;
 }

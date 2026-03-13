@@ -5,11 +5,9 @@
 #include <csignal>
 
 #include "result.h"
-#include "log.h"
 #include "mon.h"
 #include "log_manager.h"
 #include "../json/param_list_file.h"
-#include "../json/json.h"
 
 
 
@@ -20,9 +18,26 @@ using namespace std;
 typedef function <bool ()> LockTerminated;
 
 
+
+class Payload;
+
+
+struct PayloadItem
+{
+    /* "./processor.so" */
+    std::string libraryPath;
+    /* dlclose() */
+    void* libraryHandle;
+    /* payload pointer */
+    Payload* instance;
+};
+
+
+
 class Application : public Result
 {
     private:
+        bool            terminated          = false;
 
         ParamList*      cli                 = NULL;
         ParamListFile*  config              = NULL;
@@ -35,6 +50,8 @@ class Application : public Result
         /* Массив зарегистрированных сигналов */
         std::vector<int> registered_signals;
 
+        /* Name of payload from config */
+        std::map<string, PayloadItem> payloads;
     protected:
 
         /* Регистрация сигнала для обработки */
@@ -81,6 +98,20 @@ class Application : public Result
             Destroy
         */
         void destroy();
+
+
+
+        /*
+            Prepare configuration for application running
+        */
+        Application* prepareConfiguration();
+
+
+
+        /*
+            Run application
+        */
+        Application* run();
 
 
 
@@ -193,5 +224,13 @@ class Application : public Result
         virtual bool onSignal( int aSignal )
         {
             return false;
+        }
+
+
+
+        inline Application* terminate()
+        {
+            terminated = true;
+            return this;
         }
 };

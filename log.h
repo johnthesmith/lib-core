@@ -510,4 +510,13 @@ class Log
             LogRecord,
             string
         );
+
+
+
+        Log* filenameToStdout()
+        {
+            cout << "Log file name:" << fileName << "\n";
+            return this;
+        }
+
 };

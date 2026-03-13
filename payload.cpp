@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <signal.h>
 #include <unistd.h>
+#include <dlfcn.h>
 
 /* Local libraries */
 #include "payload.h"
@@ -27,7 +28,7 @@ Payload::Payload
 {
     application = aApplication;
     setId( aId );
-    getLog() -> trace( "Create payload" );
+    getLog() -> trace( "Payload created" ) -> prm( "id", aId);
 }
 
 
@@ -39,11 +40,9 @@ Payload::~Payload()
 {
     if( threadObject != NULL )
     {
-        getLog() -> trace( "Destroying payload thread" ) -> prm( "id", id );
-        stop();
         waitStop();
     }
-    getLog() -> trace( "Destroy payload" );
+    getLog() -> trace( "Payload destroyed" )  -> prm( "id", id);
 }
 
 
@@ -70,6 +69,35 @@ void Payload::destroy()
     delete this;
 }
 
+
+
+
+Payload* Payload::load
+(
+    const string& libraryPath,
+    Application* app,
+    std::string id
+)
+{
+    Payload* result = nullptr;
+    void* handle = dlopen( libraryPath.c_str(), RTLD_NOW );
+    if( handle )
+    {
+        using CreateFunc = Payload* (*)( Application*, std::string );
+        CreateFunc create = (CreateFunc) dlsym ( handle, "create_payload" );
+
+        if( create )
+        {
+            result = (create)( app, id );
+        }
+        else
+        {
+            dlclose( handle );
+        }
+
+    }
+    return result;
+}
 
 
 /******************************************************************************
@@ -171,28 +199,24 @@ Payload* Payload::waitStop()
     {
         if( threadObject != NULL )
         {
-            stop();
-
             getLog()
             -> begin( "Thread stop waiting" )
             -> prm( "id", getId() )
             -> lineEnd();
 
-            while( state == STATE_WAIT_STOP )
+            if( state != STATE_STOP )
             {
-                usleep( 1000 );
-            };
-
+                stop();
+                while( state == STATE_WAIT_STOP )
+                {
+                    usleep( 1000 );
+                };
+            }
             threadObject -> join();
-
-            getLog()
-            -> end()
-            -> lineEnd();
-
             delete threadObject;
             threadObject = NULL;
+            getLog() -> end() -> lineEnd();
         }
-
         unlock();
     }
     return this;
@@ -356,16 +380,6 @@ Payload* Payload::setId
 {
     id = aId;
     return this;
-}
-
-
-
-/*
-    Return the id of payload
-*/
-string Payload::getId()
-{
-    return id;
 }
 
 

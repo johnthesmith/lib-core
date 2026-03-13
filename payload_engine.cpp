@@ -16,7 +16,7 @@ PayloadEngine::PayloadEngine
     Application* application,
     string aId
 )
-    : Payload( application, aId ) // Вызов конструктора базового класса
+    : Payload( application, aId )
 {
 }
 
@@ -27,20 +27,6 @@ PayloadEngine::PayloadEngine
 */
 PayloadEngine::~PayloadEngine()
 {
-}
-
-
-
-/*
-    Creator
-*/
-PayloadEngine* PayloadEngine::create
-(
-    Application* aApplication,
-    string aId
-)
-{
-    return new PayloadEngine( aApplication, aId );
 }
 
 
@@ -124,14 +110,14 @@ void PayloadEngine::onLoop()
     */
     auto code = getApplication()
     -> getConfig()
-    -> getObject( Path{ "engine", getId(), "code", getCode() });
+    -> getObject( Path{ "engine", "payloads", getId(), "code", getCode() });
 
     if( code == NULL )
     {
         /* Read default result state action */
         code = getApplication()
         -> getConfig()
-        -> getObject( Path{ "engine", getId(), "code", "*" });
+        -> getObject( Path{ "engine", "payloads", getId(), "code", "*" });
     }
 
     if( code != NULL )

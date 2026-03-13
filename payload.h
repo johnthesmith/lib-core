@@ -105,6 +105,14 @@ class Payload : public Result
 
 
 
+        static Payload* load
+        (
+            const string& libraryPath,
+            /* Application object */
+            Application* app,
+            /* Payload id */
+            std::string
+        );
 
         /******************************************************************************
             Control actions
@@ -203,7 +211,11 @@ class Payload : public Result
         /*
             Return the id of payload
         */
-        string getId();
+        inline string getId()
+        {
+            return id;
+        }
+
 
 
 
@@ -258,4 +270,24 @@ class Payload : public Result
             Return thread state
         */
         ThreadState getState();
+
+
+
+        /*
+            Return payload config
+        */
+        ParamList* getConfig()
+        {
+            auto cfg = getApplication() -> getConfig();
+
+            auto result = cfg
+            -> getObject( Path{ "engine", "payloads", getId(), "config" });
+
+            if( result == nullptr )
+            {
+                result = cfg;
+            }
+
+            return result;
+        }
 };
