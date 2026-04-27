@@ -570,36 +570,6 @@ string toString
 
 
 
-bool toBool
-(
-    string a
-)
-{
-    return a == "true" || a == "TRUE";
-}
-
-
-
-long long int toInt
-(
-    string a
-)
-{
-    return atol( a.c_str() );
-}
-
-
-
-double toDouble
-(
-    string a
-)
-{
-    return atof( a.c_str() );
-}
-
-
-
 unsigned int length
 (
     int a

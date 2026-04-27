@@ -268,6 +268,20 @@ Log* Log::value
 
 
 
+/*
+    Вывод целочисленного занчения в лог
+*/
+Log* Log::value
+(
+    size_t a
+)
+{
+    text( to_string( a ) );
+    return this;
+}
+
+
+
 Log* Log::value
 (
     long long a
@@ -358,6 +372,32 @@ Log* Log::prm
 (
     string aTitle,  /* Title for parameter */
     int aValue      /* Value */
+)
+{
+    pushColor();
+    setColor( colorLabel );
+    text( "[" );
+    text( "int " );
+    setColor( colorInfo );
+    text( aTitle );
+    space();
+    setColor( colorValue );
+    value ( aValue );
+    setColor( colorLabel );
+    text( "]" );
+    popColor();
+
+    return this;
+}
+
+
+
+Log* Log::prm
+(
+    /* Title for parameter */
+    string aTitle,
+    /* Value */
+    size_t aValue
 )
 {
     pushColor();

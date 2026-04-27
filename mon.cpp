@@ -120,6 +120,37 @@ Mon* Mon::setInt
 /*
     Set value
 */
+Mon* Mon::setUInt
+(
+    /* Path of value */
+    Path aPath,
+    /* Value */
+    unsigned long long int aValue,
+    /* Once set value */
+    bool aOnce
+)
+{
+    #ifdef THREAD_PROTECTED
+        lock();
+    #endif
+
+    if( !aOnce || !list -> getParamList() -> exists( aPath ) )
+    {
+        list -> getParamList() -> setUInt( aPath, aValue );
+    }
+
+    #ifdef THREAD_PROTECTED
+        unlock();
+    #endif
+
+    return this;
+}
+
+
+
+/*
+    Set value
+*/
 Mon* Mon::setDouble
 (
     Path aPath,     /* Path of value */
@@ -513,9 +544,12 @@ Mon* Mon::dumpResult
         lock();
     #endif
 
-    list -> getParamList() -> setPath( aPath )
+    list -> getParamList()
+    -> setPath( aPath )
     -> setString( "code", aResult -> getCode() )
-    -> setString( "message", aResult -> getMessage() );
+    -> setString( "message", aResult -> getMessage() )
+    -> copyFrom( "details", aResult -> getDetails() )
+    ;
 
     #ifdef THREAD_PROTECTED
         unlock();

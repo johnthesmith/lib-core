@@ -49,15 +49,17 @@ class Payload : public Result
     private:
 
         /* Application object*/
-        Application*    application     = NULL;
-        thread*         threadObject    = NULL;
-
+        Application*    application         = nullptr;
+        thread*         threadObject        = nullptr;
+        /* Config of payload, section of application config */
+        ParamList*      config              = nullptr;
+        long int        lastConfigUpdate    = 0;
 
         /* States */
-        unsigned int    loopTimeoutMcs  = 0;
-        bool            idling          = true;
-        string          id              = "";
-        ThreadState     state           = STATE_STOP;
+        unsigned int    loopTimeoutMcs      = 0;
+        bool            idling              = true;
+        string          id                  = "";
+        ThreadState     state               = STATE_STOP;
 
         /*
             Set paused confirmation
@@ -278,16 +280,79 @@ class Payload : public Result
         */
         ParamList* getConfig()
         {
+            return config;
+        }
+
+
+
+        /*
+            Return true if application confgi was updated
+        */
+        bool isConfigUpdate()
+        {
+            return
+            getApplication() -> getLastConfigUpdate()
+            != getLastConfigUpdate();
+        }
+
+
+
+        Payload* updateConfig()
+        {
+            config -> clear();
+
             auto cfg = getApplication() -> getConfig();
-
-            auto result = cfg
-            -> getObject( Path{ "engine", "payloads", getId(), "config" });
-
-            if( result == nullptr )
+            if( cfg -> lock())
             {
-                result = cfg;
+                cfg -> resultTo( this );
+
+                auto section = cfg
+                -> getObject( Path{ "engine", "payloads", getId(), "config" });
+                if( section != nullptr )
+                {
+                    config -> copyFrom( section );
+                }
+
+                lastConfigUpdate = getApplication() -> getLastConfigUpdate();
+
+                cfg -> unlock();
+            }
+
+            return this;
+        }
+
+
+
+        bool checkConfig()
+        {
+            auto result = isConfigUpdate();
+            if( result )
+            {
+                updateConfig();
+            }
+
+            if( result )
+            {
+                getLog() -> setTrapEnabled
+                (
+                    getConfig() -> getBool( Path{ "log", "trap" }, true )
+                );
             }
 
             return result;
         }
+
+
+
+        /*
+            Return get last config update
+        */
+        inline long int getLastConfigUpdate()
+        {
+            return lastConfigUpdate;
+        }
+
 };
+
+
+

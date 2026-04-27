@@ -139,7 +139,7 @@ ChainD1* ChainD1::fromBuffer
     auto c = aBuffer -> getCount();
 
     /* Fill the chain */
-    for( unsigned long long int i = 0 ; i < c; i++ )
+    for( long long int i = 0 ; i < c; i++ )
     {
         createLast( aBuffer -> getValue( i ));
     }

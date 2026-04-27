@@ -9,7 +9,7 @@
 */
 Hid& Hid::setString
 (
-    string a
+    string /* a */
 )
 {
 //    MD5( a ).toBuffer( data );

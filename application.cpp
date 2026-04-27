@@ -93,7 +93,7 @@ Application::~Application()
     logManager  -> destroy();
 
     /*
-        Восстанавливаем стандартные обработчики для всех зарегистрированных 
+        Восстанавливаем стандартные обработчики для всех зарегистрированных
         сигналов
     */
     for( int sig : registered_signals )
@@ -272,6 +272,8 @@ Application* Application::checkConfigUpdate()
     string configFileName = getConfigFileName();
     if( fileExists( configFileName ))
     {
+        config -> lock();
+
         bool cfgUpdated = checkFileUpdate( configFileName, lastConfigUpdate );
 
         if( cfgUpdated )
@@ -301,6 +303,13 @@ Application* Application::checkConfigUpdate()
         }
 
         configUpdated = configUpdated || cfgUpdated;
+
+        if( configUpdated )
+        {
+            onConfigUpdated();
+        }
+
+        config -> unlock();
     }
     else
     {
@@ -390,17 +399,21 @@ Application* Application::prepareConfiguration()
 }
 
 
+
 /*
     Run application
 */
 Application* Application::run()
 {
-    /* Config monitoring loop */
     while( !terminated )
     {
+        config -> lock();
         checkConfigUpdate();
+        auto updated = getConfigUpdated();
+        config -> unlock();
+
         /* Try to load payload if not loaded */
-        if( getConfigUpdated() )
+        if( updated )
         {
             /* Get current path */
             char cwd[ PATH_MAX ];
@@ -429,10 +442,14 @@ Application* Application::run()
                     if
                     (
                         /* In conf not found */
-                        confItem == nullptr ||
+                        confItem == nullptr
+                        ||
                         /* Lib change */
-                        confItem != nullptr &&
-                        val.libraryPath != confItem -> getString( Path{ "lib" } ) ||
+                        (
+                            confItem != nullptr &&
+                            val.libraryPath != confItem -> getString( Path{ "lib" } )
+                        )
+                        ||
                         /* Not enabled */
                         confItem -> getBool( Path{ "enabled" }, true ) == false
                     )
@@ -560,7 +577,7 @@ Application* Application::run()
             }
         }
 
-        usleep( 100000 );
+        usleep( 1000 );
     }
 
     /* All payloads stop and destroy*/

@@ -36,8 +36,8 @@ PayloadEngine::~PayloadEngine()
 */
 void PayloadEngine::onStartBefore()
 {
-    getMon() -> now( Path{ "startMks" }, true );
-    getMon() -> now( Path{ "startMoment" }, false );
+//    getMon() -> now( Path{ "startMks" }, true );
+//    getMon() -> now( Path{ "startMoment" }, false );
     onEngineStartBefore();
 }
 
@@ -58,66 +58,36 @@ void PayloadEngine::onEngineStartBefore()
 */
 void PayloadEngine::onLoop()
 {
-    /* Check local application config */
-    bool configUpdated = getApplication()
-    -> checkConfigUpdate()
-    -> getConfigUpdated();
+    setOk();
 
-    getApplication() -> getConfig() -> resultTo( this );
-
-    if( configUpdated )
-    {
-        getLog() -> setTrapEnabled
-        (
-            getApplication()
-            -> getConfig()
-            -> getBool( Path{ "engine", "trap" }, true )
-        );
-    }
+    bool configUpdated = checkConfig();
 
     getLog()
     -> trapOn()
     -> begin( "Loop" )
+    -> prm( "id", getId() )
     -> lineEnd();
 
-    /* Begin of monitoring */
-    getMon()
-    -> startTimer( Path{ "momentMcs" })
-    -> interval( Path{ "uptime" }, Path{ "momentMcs" }, Path{ "startMks" })
-    -> setDouble( Path{ "fps" }, getFps() )
-    -> addInt( Path{ "count" })
-    ;
+//    /* Begin of monitoring */
+//    getMon()
+//    -> startTimer( Path{ "payloads", getId(), "momentMcs" })
+//    -> interval( Path{ "uptime" }, Path{ "momentMcs" }, Path{ "startMks" })
+//    -> setDouble( Path{ "fps" }, getFps() )
+//    -> addInt( Path{ "count" })
+//    ;
 
-    if( isOk() )
-    {
-        /* Check enabled */
-        auto enabled = getApplication()
-        -> getConfig()
-        -> getBool( Path{ "engine", "enabled" }, true );
+    onEngineLoop( configUpdated );
 
-        getMon() -> setBool( Path{ "enabled" }, enabled );
-
-        if( !enabled )
-        {
-            setCode( "disabled" );
-        }
-
-        onEngineLoop( configUpdated, enabled );
-    }
 
     /*
         Define result state action
     */
-    auto code = getApplication()
-    -> getConfig()
-    -> getObject( Path{ "engine", "payloads", getId(), "code", getCode() });
+    auto code = getConfig() -> getObject( Path{ "code", getCode() });
 
     if( code == NULL )
     {
         /* Read default result state action */
-        code = getApplication()
-        -> getConfig()
-        -> getObject( Path{ "engine", "payloads", getId(), "code", "*" });
+        code = getConfig() -> getObject( Path{ "code", "*" });
     }
 
     if( code != NULL )
@@ -132,12 +102,6 @@ void PayloadEngine::onLoop()
         -> dump( getDetails(), "Details" )
         -> text( getMessage() );
 
-        /* Exit form payload */
-        if( code -> getBool( Path{ "exit" }, false ))
-        {
-            stop();
-        }
-
         /* Sleep timeout */
         auto sleep = code -> getInt( Path{ "timeoutMcs" }, 0 );
         if( sleep != 0)
@@ -147,13 +111,17 @@ void PayloadEngine::onLoop()
     }
     else
     {
-        getLog() -> error( "unknown_action" ) -> prm( "code", getCode() );
-        stop();
+        getLog()
+        -> warning( "unknown_action" )
+        -> prm( "code", getCode() );
+        setLoopTimeoutMcs( 1000000 );
     }
 
+//    /* Final monitoring */
+//    getMon()
+//    -> setString( Path{ "Result" }, getCode() )
+//    -> flush();
 
-    /* Final monitoring */
-    getMon() -> setString( Path{ "Result" }, getCode() ) -> flush();
     getLog()
     -> end()
     -> trapOff()
@@ -170,21 +138,6 @@ void PayloadEngine::onLoop()
     fpsLast = current;
 }
 
-
-
-/*
-    Payload engine loop default event
-*/
-void PayloadEngine::onEngineLoop
-(
-    /* true if application config updated */
-    const bool,
-    /* true for enabled service */
-    const bool
-)
-{
-    /* Can be overrided in childrens */
-}
 
 
 

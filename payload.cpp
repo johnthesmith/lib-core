@@ -27,6 +27,7 @@ Payload::Payload
 )
 {
     application = aApplication;
+    config = ParamList::create();
     setId( aId );
     getLog() -> trace( "Payload created" ) -> prm( "id", aId);
 }
@@ -42,6 +43,7 @@ Payload::~Payload()
     {
         waitStop();
     }
+    config -> destroy();
     getLog() -> trace( "Payload destroyed" )  -> prm( "id", id);
 }
 
@@ -119,6 +121,7 @@ Payload* Payload::start
     */
     auto doLoop = [ this ]()
     {
+        onStartAfter();
         while( state == STATE_LOOP )
         {
             internalLoop1();
@@ -161,10 +164,9 @@ Payload* Payload::start
         {
             /* Run loop in the parent thread */
             state = STATE_LOOP;
+            /* Run loop */
             doLoop();
         }
-
-        onStartAfter();
 
         unlock();
     }

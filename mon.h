@@ -86,6 +86,20 @@ class Mon : public Result
         );
 
 
+        /*
+            Set value
+        */
+        Mon* setUInt
+        (
+            /* Path of value */
+            Path,
+            /* Value */
+            unsigned long long int,
+            /* Once set value */
+            bool = false
+        );
+
+
 
         /*
             Set value

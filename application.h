@@ -220,8 +220,14 @@ class Application : public Result
         Application* setupSignalHandlers();
 
 
-        /* On signal event handler for overriding in clients */
-        virtual bool onSignal( int aSignal )
+
+        /*
+            On signal event handler for overriding in clients
+        */
+        virtual bool onSignal
+        (
+            /* Id signal */
+            int /* aSignal */ )
         {
             return false;
         }
@@ -231,6 +237,31 @@ class Application : public Result
         inline Application* terminate()
         {
             terminated = true;
+            return this;
+        }
+
+
+
+        /*
+            Return get last config update
+        */
+        inline long int getLastConfigUpdate()
+        {
+            return lastConfigUpdate;
+        }
+
+
+
+
+        /**********************************************************************
+            Application events
+        */
+
+        /*
+            Generate event after config updated
+        */
+        virtual Application* onConfigUpdated()
+        {
             return this;
         }
 };

@@ -10,6 +10,7 @@
 using namespace std;
 
 
+
 /*
     Enumeration defining different parameter types
 */
@@ -20,10 +21,11 @@ enum ParamType
     KT_STRING,    /* 2 String data type */
     KT_DATA,      /* 3 Data type for representing binary data */
     KT_INT,       /* 4 Integer data type */
-    KT_DOUBLE,    /* 5 Double data type */
-    KT_OBJECT,    /* 6 Object data type (structures, classes, etc.) */
-    KT_ARRAY,     /* 7 Array data type */
-    KT_NULL       /* 8 Null data type (no value) */
+    KT_UINT,      /* 5 Integer data type */
+    KT_DOUBLE,    /* 6 Double data type */
+    KT_OBJECT,    /* 7 Object data type (structures, classes, etc.) */
+    KT_ARRAY,     /* 8 Array data type */
+    KT_NULL       /* 9 Null data type (no value) */
 };
 
 
@@ -272,24 +274,43 @@ string toString
 
 
 
-bool toBool
+inline bool toBool
 (
-    string
-);
+    string a
+)
+{
+    return a == "true" || a == "TRUE";
+}
 
 
 
-long long int toInt
+inline long long int toInt
 (
-    string
-);
+    string a
+)
+{
+    return strtoll( a.c_str(), nullptr, 10 );
+}
 
 
 
-double toDouble
+inline unsigned long long toUInt
 (
-    string
-);
+    string a
+)
+{
+    return strtoull( a.c_str(), nullptr, 10 );
+}
+
+
+
+inline double toDouble
+(
+    string a
+)
+{
+    return atof( a.c_str() );
+}
 
 
 
